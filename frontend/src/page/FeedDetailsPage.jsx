@@ -4,10 +4,10 @@ import { useParams } from 'react-router-dom';
 
 function ArticleCard({article}) {
   return (
-    <div>
-      <h3>Titre : {article.title}</h3>
-      <p>Auteur : {article.author}</p>
-      <p>Sommaire : {article.summary}</p>
+    <div className='m-3 p-2 border'>
+      <h3 className='text-lg font-bold'>{article.title}</h3>
+      <p><b>Auteur :</b> {article.author}</p>
+      <p><b>Sommaire :</b> {article.summary}</p>
     </div>
   )
 }
@@ -26,7 +26,7 @@ function FeedDetailsPage() {
 
   return (
     <div>
-        <h1>Bienvenue sur le feed : {feedName}</h1>
+        <h1 className='text-3xl mb-5'>Bienvenue sur le feed : {feedName}</h1>
         <div>
           { fluxRSS ?
             fluxRSS.map((item) =>

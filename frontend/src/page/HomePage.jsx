@@ -12,11 +12,13 @@ function HomePage() {
 
   return (
     <>
-      <h1>Flux RSS disponibles :</h1>
+      <h1 className='text-3xl pb-5'>Flux RSS disponibles :</h1>
       <ul>
         {Object.keys(fluxRSS).map((name) => 
           <li key={name}>
-            <Link to={'feed/'+name}>{name}</Link>
+            <Link to={'feed/'+name} className='text-blue-700 underline'>
+              {name}
+            </Link>
           </li>
         )}
       </ul>
