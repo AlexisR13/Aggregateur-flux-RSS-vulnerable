@@ -23,10 +23,11 @@ def show_feeds():
 
 @app.route('/<feed_name>')
 def get_feed(feed_name):
+    if feed_name not in FEEDS.keys():
+       return 'Not found'
     feed_url = FEEDS[feed_name]
     feed = feedparser.parse(feed_url)
-    first_article = feed['entries'][0]
-    return first_article
+    return feed['entries']
 
 if __name__ == "__main__":
   app.run(port=5000, debug=True)
