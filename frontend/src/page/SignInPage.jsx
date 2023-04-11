@@ -1,9 +1,12 @@
 import { useState } from 'react';
-import Cookies from 'js-cookie';
 import { Navigate } from 'react-router-dom';
 import SignForm from '../components/SignForm';
+import { useDispatch, useSelector } from 'react-redux';
+import { setAuthCookie } from '../redux/cookies';
 
-export default function SignInPage(props) {
+export default function SignInPage() {
+    const dispatch = useDispatch();
+
     // States for registration
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -16,15 +19,15 @@ export default function SignInPage(props) {
         e.preventDefault();
         if (username === 'admin' && password === 'admin') {
             setError(false);
-            Cookies.set('username', 'admin');
-            props.setAuthToken(Cookies.get('username'));
+            // TO DO - backend set cookie instead of frontend
+            dispatch(setAuthCookie('admin'));
         } else {
             setError(true);
         }
     };
 
     // If user is already connected, just redirect them
-    if (Cookies.get('username')) {
+    if (useSelector((state) => state.authCookie.value)) {
         return <Navigate replace to='/'/>
     }
 

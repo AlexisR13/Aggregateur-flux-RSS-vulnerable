@@ -1,6 +1,6 @@
 import { Link, Route, Routes } from 'react-router-dom';
-import { useState } from 'react';
-import Cookies from 'js-cookie';
+import { useSelector, useDispatch } from 'react-redux';
+import { removeAuthCookie } from './redux/cookies';
 import SignInPage from './page/SignInPage';
 import SignUpPage from './page/SignUpPage';
 import ArticleDetailsPage from './page/ArticleDetailsPage';
@@ -8,8 +8,8 @@ import FeedDetailsPage from './page/FeedDetailsPage';
 import HomePage from './page/HomePage';
 
 function App() {
-  const [authToken, setAuthToken] = useState(Cookies.get('username'))  
-  console.log(authToken)
+  const dispatch = useDispatch();
+  const authCookie = useSelector((state) => state.authCookie.value);
 
   return (
     <div>
@@ -17,15 +17,15 @@ function App() {
         <Link to=''>Accueil</Link>
         <h1 className='text-6xl'>Super App</h1>
         { /* Check cookie value to see if user is authenticated or not */
-          authToken ?
-          <button onClick={() => {Cookies.remove('username'); setAuthToken(undefined)}}>Se déconnecter</button> :
+          authCookie ?
+          <button onClick={() => {dispatch(removeAuthCookie(undefined))}}>Se déconnecter</button> :
           <Link to='connexion'>Se connecter</Link>
         }
       </header>
       <div className='pt-44 mx-32'>
         <Routes>
           <Route path='/' element={<HomePage/>}/>
-          <Route path='/connexion/' element={<SignInPage setAuthToken={setAuthToken}/>}/>
+          <Route path='/connexion/' element={<SignInPage/>}/>
           <Route path='/inscription/' element={<SignUpPage/>}/>
           <Route path='/feed/:feedName' element={<FeedDetailsPage/>}/>
           <Route path='/article/' element={<ArticleDetailsPage/>}/>
