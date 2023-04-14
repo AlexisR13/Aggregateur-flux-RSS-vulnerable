@@ -7,6 +7,10 @@ import bcrypt
 from hmac import compare_digest
 import ssl
 import re
+from datetime import datetime
+import bcrypt
+import requests
+from bs4 import BeautifulSoup
 
 #Fonctionnalités bonus si on à le temps:
 
@@ -54,9 +58,3 @@ FEEDS = {
 # Avoid error checking TLS certificate
 if hasattr(ssl, '_create_unverified_context'):
     ssl._create_default_https_context = ssl._create_unverified_context
-
-
-#Stocker les feeds favoris des personnes dans la DB User, ou juste leur lien ?
-#ou créer un table dse feeds sauvegardés avec un array des users ID
-
-#PAS SUR DES BACKREFS

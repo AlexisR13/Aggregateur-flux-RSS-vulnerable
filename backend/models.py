@@ -1,11 +1,10 @@
-from flask import Flask, request, jsonify, redirect, url_for, flash
-from flask_login import login_user, UserMixin, LoginManager, current_user, logout_user, login_required
-import bcrypt
+
 from config import *
 
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key = True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     login = db.Column(db.String(100), unique=True)  #login has to be unique
     password = db.Column(db.LargeBinary)  #hash of password
     email = db.Column(db.Text)
@@ -33,12 +32,7 @@ class Feed(db.Model):
     name = db.Column(db.Text)  #name might not be unique
     default = db.Column(db.Boolean, nullable=False)  #url for feed, maybe not enough length
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-    """ def __init__(self,name, url, bool=False):
-        
-        self.name=name
-        self.url=url
-        self.defaults = bool """
+    
     
 #many-to-many mapping
 filter_feed = db.Table('filter_feed',
@@ -54,9 +48,3 @@ class Filter(db.Model):
     name = db.Column(db.Text) 
     rule = db.Column(db.Text)  
     feeds = db.relationship('Feed', secondary=filter_feed, backref='filters')
-    
-    """def __init__(self,name, owner_id, rule=""):
-        
-        self.name=name
-        self.rule=""
-        self.owner_id = owner_id"""
