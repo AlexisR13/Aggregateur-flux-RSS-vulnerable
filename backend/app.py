@@ -1,3 +1,5 @@
+import os
+
 from config import *
 from models import *
 from feed_routes import *
@@ -22,5 +24,6 @@ if __name__ == "__main__":
         db.session.add(admin)
         
         db.session.commit()
-    
-    app.run(port=5000, debug=True)
+
+    # Listen on docker inside networks interface (or localhost if use without docker)
+    app.run(port=5000, host=os.environ.get('LISTENING_INTERFACE'), debug=True)

@@ -1,9 +1,12 @@
+from flask import request, jsonify
+from flask_login import current_user, login_required
+from bs4 import BeautifulSoup
+import feedparser
+import requests
+
 from config import *
 from models import *
 
-from flask import request, jsonify
-from flask_login import current_user, login_required
-import feedparser
 
 #Il faudrait avoir une vue un peu comme dans gmail, avec une liste limitée de flux.
 #Avec un bouton  "en savoir plus", ça serait top si on peut afficher directement dans le navigateur le contenu de la page web
@@ -71,7 +74,6 @@ def get_articles(page=1, count=50):
     return jsonify(articles[(page-1)*count:page*count])
        
        
-       
 @app.route('/manage_feed', methods = ["POST"])
 @app.route('/manage_feed/<int:feed_id>', methods = ["DELETE"])
 @login_required
@@ -124,11 +126,10 @@ def rename_feed(feed_id):
     
     return jsonify({"success":True})
 
-### WORK IN PROGRESS ###
+
 @app.route('/edit_favorite/<int:feed_id>', methods = ["GET"])
 @login_required
 def edit_favorite(feed_id):
-    
     user_id = int(current_user.get_id())
     feed = Feed.query.filter_by(id = feed_id, owner_id=user_id).first()  #SHOULD BE UNIQUE
     
@@ -136,13 +137,66 @@ def edit_favorite(feed_id):
         return jsonify({"success":False})
     
     #il faut récupérer le filtre "favs" associé à cet user, et vérifier si le feed y est ou non
-    favorites = feed.query.with_entities(feed.filters).query(name = "favs")
+    favorites = Filter.query.with_entities(Filter.feeds).filter_by(owner_id = user_id, name="favs").all()
     
-    feed.name = request.form["name"]   
-    #peut-être nécessaire de faire une nettoyage ici si ce n'est pas fait sur le front
-    #par exemple en faisant un strip de tous les caractères qui ne sont pas alphanumériques ou des espaces
+    if favorites.query.filter_by(id = feed_id).exists():
+        favorites.feeds.remove(feed)
+    else:
+        favorites.feeds.append(feed)
+
     db.session.commit()
-    
     return jsonify({"success":True})
 
+
+@app.route('/preview', methods=["POST"])
+def article_preview():
+    url = request.json.get('url')
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    try:
+        title = soup.find('title').string
+        desc = soup.find('meta',attrs = {'name':'description'})['content']
+        image = soup.find('meta', property='og:image')['content']
+    except:
+        return jsonify({'success': False, "message": "Problème lors de la récupération des données du site."})
+    else:        
+        return jsonify({'title':title,'description':desc,'image':image})
     
+@app.route('/bigpreview', methods=["POST"])
+def article_bigpreview():
+    url = request.json.get('url')
+    response = requests.get(url)
+    
+    soup = BeautifulSoup(response.text, 'html.parser').select('body > main')
+    
+    return str(soup)
+    try:
+        title = soup.find('title').string
+        desc = soup.find('meta',attrs = {'name':'description'})['content']
+        image = soup.find('meta', property='og:image')['content']
+    except:
+        return jsonify({'success': False, "message": "Problème lors de la récupération des données du site."})
+    else:        
+        return jsonify({'title':title,'description':desc,'image':image})
+    
+    
+    
+@app.route('/content', methods=["POST"])
+def get_content():
+    url = request.json.get('url')
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+
+    # Remove unwanted elements such as ads, scripts, CSS and headers
+    for script in soup(["script", "style", "link", "meta"]):
+        script.extract()
+
+    # Get the simplified view content
+    simplified_view_content = soup.get_text()
+    
+    return simplified_view_content
+    # Return the data as a JSON object
+    return jsonify({
+        'titles': titles,
+        'text': text
+    })

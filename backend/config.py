@@ -3,7 +3,6 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import ssl
-import os
 
 #Fonctionnalités bonus si on à le temps:
 
@@ -31,10 +30,6 @@ children = parent.children
 app = Flask(__name__)
 CORS(app)
 
-app.config['APPLICATION_ROOT'] = '/api'
-# Listen on docker inside networks interface (or localhost if use without docker)
-app.config['SERVER_NAME'] = os.environ.get('LISTENING_INTERFACE')
-
 # SQL Database
 app.config['SECRET_KEY'] = 'a random string which I found on some w3ird internet website'
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///db.sqlite3'  #local database for now
@@ -56,9 +51,3 @@ FEEDS = {
 # Avoid error checking TLS certificate
 if hasattr(ssl, '_create_unverified_context'):
     ssl._create_default_https_context = ssl._create_unverified_context
-
-
-#Stocker les feeds favoris des personnes dans la DB User, ou juste leur lien ?
-#ou créer un table dse feeds sauvegardés avec un array des users ID
-
-#PAS SUR DES BACKREFS
