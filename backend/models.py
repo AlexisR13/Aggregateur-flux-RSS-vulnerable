@@ -1,5 +1,4 @@
-from flask import Flask, request, jsonify, redirect, url_for, flash
-from flask_login import login_user, UserMixin, LoginManager, current_user, logout_user, login_required
+from flask_login import UserMixin
 import bcrypt
 from config import *
 

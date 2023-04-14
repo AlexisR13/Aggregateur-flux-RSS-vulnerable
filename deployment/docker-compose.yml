@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  server:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.backend
+    image: flux-rss-server
+    environment:
+      - LISTENING_INTERFACE=server
+    
+  client:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.frontend
+    image: flux-rss-client
+    ports:
+      - 8080:80

@@ -1,12 +1,9 @@
-from flask import Flask, request, jsonify, redirect, url_for, flash
-from flask_login import login_user, UserMixin, LoginManager, current_user, logout_user, login_required
+from flask import Flask
+from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-import feedparser
-import bcrypt
-from hmac import compare_digest
 import ssl
-import re
+import os
 
 #Fonctionnalités bonus si on à le temps:
 
@@ -34,6 +31,11 @@ children = parent.children
 app = Flask(__name__)
 CORS(app)
 
+app.config['APPLICATION_ROOT'] = '/api'
+# Listen on docker inside networks interface (or localhost if use without docker)
+app.config['SERVER_NAME'] = os.environ.get('LISTENING_INTERFACE')
+
+# SQL Database
 app.config['SECRET_KEY'] = 'a random string which I found on some w3ird internet website'
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///db.sqlite3'  #local database for now
 db = SQLAlchemy(app)

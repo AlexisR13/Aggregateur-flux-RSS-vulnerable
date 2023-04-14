@@ -3,7 +3,6 @@ from models import *
 from feed_routes import *
 from account_routes import *
 
-
 if __name__ == "__main__":
     
     with app.app_context():

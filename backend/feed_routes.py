@@ -1,6 +1,9 @@
 from config import *
 from models import *
 
+from flask import request, jsonify
+from flask_login import current_user, login_required
+import feedparser
 
 #Il faudrait avoir une vue un peu comme dans gmail, avec une liste limitée de flux.
 #Avec un bouton  "en savoir plus", ça serait top si on peut afficher directement dans le navigateur le contenu de la page web
