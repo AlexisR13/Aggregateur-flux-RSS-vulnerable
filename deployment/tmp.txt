@@ -1,5 +1,0 @@
-sudo docker build -f backend/Dockerfile -t flux-rss-backend .
-
-sudo docker run --rm -p 5000:5000 flux-rss-backend
-
-
