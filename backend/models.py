@@ -57,6 +57,7 @@ class Feed(db.Model):
     name = db.Column(db.Text)  #name might not be unique
     default = db.Column(db.Boolean, nullable=False)  #url for feed, maybe not enough length
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    publisher = db.Column(db.Text)
     
     def __str__(self):
         return f"Feed(name='{self.name}', url='{self.url}', default='{self.default}', owner_id='{self.owner_id}')"
@@ -79,4 +80,11 @@ class Filter(db.Model):
 
     def __str__(self):
         return f"Filter(name='{self.name}', rule='{self.rule}', owner_id='{self.owner_id}')"
+    
+
+class Feedback(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    summary = db.Column(db.String(100))  #login has to be unique
+    description = db.Column(db.Text)
     

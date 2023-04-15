@@ -8,6 +8,8 @@ from datetime import timezone
 from config import *
 from models import *
 
+from flask import Flask, abort, request, render_template_string
+import jinja2, re, hashlib
 
 @app.route('/signup', methods=["POST"])
 def signup():
@@ -122,6 +124,50 @@ def change_email():
     return jsonify({'success': False, "message": "Mauvais mot de passe courant."})
 
 
+@app.errorhandler(500)
+@app.route('/error/admin_feedback_form_beta', methods=["GET","POST"]) 
+def feedback():
+    
+    form = '''<form method="POST" action="/error/admin_feedback_form_beta">
+                <label for="summary">Titre:</label><br>
+                <input type="text" id="summary" name="summary" required><br>
+                <label for="description">Description:</label><br>
+                <textarea id="description" name="description" rows="5" cols="50" required></textarea><br>
+                <input type="submit" value="Submit">
+            </form></br></br>'''
+    
+    if request.method == "POST":
+        
+        summary = request.form["summary"]
+        description = request.form["description"]
+        feedback = Feedback(summary = summary, description = description)
+        db.session.add(feedback)
+        db.session.commit()
+    
+    comments = Feedback.query.all()
+    
+    template = '''
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Error</title>
+          </head>
+          <body>
+            <h1>Erreur 500</h1>
+            <p>Vous pouvez aider l'Admin en lui précisant ce qui a conduit à cette erreur:</p></br></br>'''+form+\
+        '''<p>Voici les erreurs signalées précedemment par les autres utilisateurs: si la votre est déjà décrite, cela arrangerait l'administrateur si vous ne créez pas un doublon :)</p></br>'''
+            
+    for comment in comments:
+        
+        template += '''<div class="comment" style="border: 1px solid black;padding: 10px;">
+            <p class="creation-date">'''+comment.created_at.strftime("%d/%m/%Y, %H:%M:%S")+'''</p>
+            <h2 class="summary">'''+comment.summary+'''</h2>
+            <p class="description">'''+comment.description+'''</p>
+        </div>'''
+
+    template += '''</body></html>'''
+
+    return render_template_string(template)
 
 @app.route('/profile', methods=["GET"])
 @jwt_required() #@login_required
@@ -157,6 +203,7 @@ def suppress_account():
     return jsonify({'success': True, "message":""})
     
     
+### NE PAS OUBLIER DE SUPPRIMER CA AVANT DE DOCKERISER ###
 @app.route('/show_database_secret_path', methods=["GET"])
 def return_db():
     list = {"feeds":[],"filters":[],"users":[]}

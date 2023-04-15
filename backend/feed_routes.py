@@ -126,7 +126,7 @@ def manage_feed(feed_id=-1):
         if urlAlreadyTaken:
             return jsonify({"success":False, "message":"URL already taken."})
             
-        feed = Feed(url = request.form['url'], name = request.form['name'], default = False, owner_id = user_id)
+        feed = Feed(url = request.json.get('url'), name = request.json.get('name'), default = False, owner_id = user_id, publisher = feedparser(request.json.get('url')).feed.title)
 
         db.session.add(feed)
         db.session.commit()

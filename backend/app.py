@@ -16,7 +16,8 @@ if __name__ == "__main__":
         default_feeds = []
         
         for key in FEEDS:
-            default_feeds.append(Feed(name=key, url=FEEDS[key], default=True))
+            url=FEEDS[key]
+            default_feeds.append(Feed(name=key, url=url, default=True, publisher = feedparser.parse(url)["feed"]["title"]))
             
         db.session.add_all(default_feeds)
         

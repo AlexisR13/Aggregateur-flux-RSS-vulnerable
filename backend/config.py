@@ -53,11 +53,6 @@ ACCESS_EXPIRES = timedelta(hours=2)
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
 jwt = JWTManager(app)
 
-
-"""login_manager = LoginManager()
-login_manager.init_app(app)"""
-
-
 FEEDS = {
     # 'feed_name' : 'feed_url',
     'ANSSI publications': 'http://www.ssi.gouv.fr/feed/publication/',
