@@ -1,7 +1,7 @@
 feedparser==6.0.10
 Flask==2.2.3
 Flask-Cors==3.0.10
-Flask-Login==0.6.2
+flask_jwt_extended==4.4.4
 Flask-SQLAlchemy==3.0.3
 bcrypt==4.0.1
 bs4==0.0.1

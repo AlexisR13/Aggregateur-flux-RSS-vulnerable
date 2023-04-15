@@ -9,7 +9,7 @@ function ArticleDetailsPage() {
 
   const [article, setArticle] = useState([])
   useEffect(() => {
-    axios.get('http://localhost:5000/' + feedName + '/' + articleId)
+    axios.get(feedName + '/' + articleId)
       .then((response) => {
         setArticle(response.data);
     })

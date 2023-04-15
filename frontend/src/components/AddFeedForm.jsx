@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-export default function AddFluxForm(props) {
+export default function AddFeedForm() {
     const [fluxName, setFluxName] = useState('');
     const [fluxURL, setFluxURL] = useState('');
     const [error, setError] = useState(false);
