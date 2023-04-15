@@ -3,6 +3,7 @@ from flask_login import current_user, login_required
 from bs4 import BeautifulSoup
 import feedparser
 import requests
+import json
 
 from config import *
 from models import *
@@ -28,10 +29,15 @@ def show_feeds():
         #favorites = filters.with_entities(Filter.feeds).filter_by(name = "favs").all()
         feeds = Feed.query.filter_by(owner_id = user_id).all()
         
+        defaults = Feed.query.filter_by(default=True).all()
+        
         for feed in favorites:
             dic[feed.name] = {"url":feed.url, "id":feed.id, "isFavorite":True}  #pas sûr du True, peut-être mettre 0 ou 1
         
         for feed in feeds.except_(favorites):
+            dic[feed.name] = {"url":feed.url, "id":feed.id, "isFavorite":False}  #pas sûr du True, peut-être mettre 0 ou 1
+            
+        for feed in defaults.except_(favorites).except_(feeds):
             dic[feed.name] = {"url":feed.url, "id":feed.id, "isFavorite":False}  #pas sûr du True, peut-être mettre 0 ou 1
     else:
         feeds = Feed.query.filter_by(default=True).all()
@@ -57,22 +63,45 @@ def show_feeds():
 # Il est possible ensuite de changer de page et de nombre d'articles à afficher
 # ATTENTION: page indexé à 1
 @app.route('/articles', methods=["GET"])
-@app.route('/articles/<int:page>', methods=["GET"])
-@app.route('/articles/<int:page>/<int:count>', methods=["GET"])
-def get_articles(page=1, count=50):
+@jwt_required(optional=True)
+def get_articles():
     # prend en input l'output de "/": OUTPUT: {<FEED_NAME>:{"url":<FEED_URL>, "isFavorite:<Boolean>"}...}
     # le isFavorite n'est ici pas utilisé
     # retourne: l'objet feedparse qui stocke tous les articles, jsonifié
     
-    feeds = request.form['feeds']
-    
+    page = request.args.get('page', default = 1, type = int)
+    count = request.args.get('count', default =50, type = int)
+    feed = request.args.get('feed', default = -1, type = int)
+    filter = request.args.get('filter', default = "*", type = str)
+    current_identity = get_jwt_identity()
+  
+    if filter == "*" or not current_identity:
+        
+        if feed == -1:
+            feeds = json.loads(show_feeds().get_data())
+        else:
+            # on s'en fiche s'il n'appartient pas à la personne qui fait la requête, car URL publique.
+            feed = Feed.query.filter_by(id = feed).one_or_none()
+            feeds = {feed.name:{"url":feed.url, "id":feed.id, "isFavorite":False}}
+            
+    elif current_identity and filter != "*":
+        
+        user_id = current_user.id
+        filtered_feeds = Filter.query.with_entities(Filter.feeds).filter_by(owner_id = user_id, name=filter).all()
+        
+        for feed in filtered_feeds:  #ON SUPPOSE QUE FILTRE = FAVS
+            feeds[feed.name] = {"url":feed.url, "id":feed.id, "isFavorite":True}  #pas sûr du True, peut-être mettre 0 ou 1
+        
+        
     articles = []
     for feedName in feeds:
-        url = feedName["url"]
+        url = feeds[feedName]["url"]
         feed = feedparser.parse(url)
-        articles.extend(feed.entries)
+        for entry in feed.entries:
+            dic = {"name": feedName, "published_parsed":entry.published_parsed,"link": entry.link, "summary":entry.summary, "title":entry.title, "published":entry.published}
+            articles.append(dic)
         
-    articles.sort(key= lambda entry:entry.published_parsed, reverse=True)
+    articles.sort(key= lambda entry:entry["published_parsed"], reverse=True)
     
     return jsonify(articles[(page-1)*count:page*count])
        
@@ -88,9 +117,13 @@ def manage_feed(feed_id=-1):
     if request.method == "POST":
         user_id = current_user.id
         
-        alreadyTaken = Feed.query.filter_by(name = request.form['name'], owner_id=user_id).first()  #SHOULD BE UNIQUE
-        if alreadyTaken:
-            return jsonify({"success":False})
+        nameAlreadyTaken = Feed.query.filter_by(name = request.json.get['name'], owner_id=user_id).first()  #SHOULD BE UNIQUE
+        if nameAlreadyTaken:
+            return jsonify({"success":False, "message":"Name already taken."})
+        
+        urlAlreadyTaken = Feed.query.filter_by(url = request.json.get['url'], owner_id=user_id).first()  #SHOULD BE UNIQUE
+        if urlAlreadyTaken:
+            return jsonify({"success":False, "message":"URL already taken."})
             
         feed = Feed(url = request.form['url'], name = request.form['name'], default = False, owner_id = user_id)
 
@@ -105,6 +138,12 @@ def manage_feed(feed_id=-1):
         
         if feed is None:
             return jsonify({"success":False})
+        
+        #il faut récupérer le filtre "favs" associé à cet user, et vérifier si le feed y est ou non
+        favorites = Filter.query.with_entities(Filter.feeds).filter_by(owner_id = user_id, name="favs").all()
+
+        if favorites.query.filter_by(id = feed_id).exists():
+            favorites.feeds.remove(feed)
             
         db.session.delete(feed)
         db.session.commit()
@@ -122,7 +161,7 @@ def rename_feed(feed_id):
     if feed is None:
         return jsonify({"success":False})
     
-    feed.name = request.form["name"]   
+    feed.name = request.json.get["name"]   
     #peut-être nécessaire de faire une nettoyage ici si ce n'est pas fait sur le front
     #par exemple en faisant un strip de tous les caractères qui ne sont pas alphanumériques ou des espaces
     db.session.commit()
@@ -149,6 +188,9 @@ def edit_favorite(feed_id):
 
     db.session.commit()
     return jsonify({"success":True})
+
+
+
 
 
 @app.route('/preview', methods=["POST"])
