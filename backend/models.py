@@ -22,15 +22,20 @@ class User(UserMixin, db.Model):
         self.email = email
     
  
-class RevokedToken(db.Model):
+class TokenBlocklist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    jti = db.Column(db.String(120))
-
-    @classmethod
-    def is_jti_blacklisted(cls, jti):
-        query = cls.query.filter_by(jti=jti).first()
-        return bool(query)
+    jti = db.Column(db.String(36), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, nullable=False)
     
+
+# Callback function to check if a JWT exists in the database blocklist
+@jwt.token_in_blocklist_loader
+def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
+    jti = jwt_payload["jti"]
+    token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
+
+    return token is not None
+
     
 @jwt.user_identity_loader
 def user_identity_lookup(user):
@@ -62,6 +67,6 @@ class Filter(db.Model):
 
     id = db.Column(db.Integer, primary_key = True)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    name = db.Column(db.Text) 
+    name = db.Column(db.Text, nullable=False) 
     rule = db.Column(db.Text)  
     feeds = db.relationship('Feed', secondary=filter_feed, backref='filters')

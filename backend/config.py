@@ -4,8 +4,15 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import ssl
 
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import get_jwt
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import JWTManager
+from flask_jwt_extended import set_access_cookies
+from flask_jwt_extended import unset_jwt_cookies
+from datetime import timedelta
 
-from flask_jwt_extended import create_access_token, get_raw_jwt, get_jwt_identity, jwt_required, JWTManager
 
 #Fonctionnalités bonus si on à le temps:
 
@@ -42,6 +49,8 @@ db = SQLAlchemy(app)
 
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = "super-secret, thou2 shall() not find/ it. " 
+ACCESS_EXPIRES = timedelta(hours=2)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
 jwt = JWTManager(app)
 
 

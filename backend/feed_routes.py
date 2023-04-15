@@ -12,12 +12,15 @@ from models import *
 #Avec un bouton  "en savoir plus", ça serait top si on peut afficher directement dans le navigateur le contenu de la page web
 
 @app.route('/', methods=["GET"])
+@jwt_required(optional=True)
 def show_feeds():
     #OUTPUT: {<FEED_NAME>:{"url":<FEED_URL>, "id":<FEED_ID>, "isFavorite:<Boolean>"}...}
     dic = {}
     
-    if current_user.is_authenticated:
-        user_id = int(current_user.get_id())
+    current_identity = get_jwt_identity()
+    
+    if current_identity:
+        user_id = current_user.id
         # retrieving a==the user filters
         
         favorites = Filter.query.with_entities(Filter.feeds).filter_by(owner_id = user_id, name="favs").all()
@@ -76,14 +79,14 @@ def get_articles(page=1, count=50):
        
 @app.route('/manage_feed', methods = ["POST"])
 @app.route('/manage_feed/<int:feed_id>', methods = ["DELETE"])
-@login_required
+@jwt_required()
 def manage_feed(feed_id=-1):
     # On suppose que pour le delete, on a en entrée l'ID du filtre
     # Mais on pourrait facilement adapter la fonction si on a juste le nom du feed (en utilisant alors le user_id)
     # On impose que chaque nom de feed est unique (pour un user donné)
     
     if request.method == "POST":
-        user_id = int(current_user.get_id())
+        user_id = current_user.id
         
         alreadyTaken = Feed.query.filter_by(name = request.form['name'], owner_id=user_id).first()  #SHOULD BE UNIQUE
         if alreadyTaken:
@@ -97,7 +100,7 @@ def manage_feed(feed_id=-1):
         return jsonify({"success":True})
             
     else:
-        user_id = int(current_user.get_id())
+        user_id = current_user.id
         feed = Feed.query.filter_by(id = feed_id, owner_id=user_id).first()  #SHOULD BE UNIQUE
         
         if feed is None:
@@ -110,10 +113,10 @@ def manage_feed(feed_id=-1):
 
     
 @app.route('/rename_feed/<int:feed_id>', methods = ["POST"])
-@login_required
+@jwt_required()
 def rename_feed(feed_id):
     
-    user_id = int(current_user.get_id())
+    user_id = current_user.id
     feed = Feed.query.filter_by(id = feed_id, owner_id=user_id).first()  #SHOULD BE UNIQUE
     
     if feed is None:
@@ -128,9 +131,9 @@ def rename_feed(feed_id):
 
 
 @app.route('/edit_favorite/<int:feed_id>', methods = ["GET"])
-@login_required
+@jwt_required()
 def edit_favorite(feed_id):
-    user_id = int(current_user.get_id())
+    user_id = current_user.id
     feed = Feed.query.filter_by(id = feed_id, owner_id=user_id).first()  #SHOULD BE UNIQUE
     
     if feed is None:
