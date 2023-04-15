@@ -29,10 +29,11 @@ def signup():
         return jsonify({'success': False, "message":"\n".join(errors)})
 
     user = User(login = username,password = password, email = email)
-    filter = Filter(owner_id = user.id, name="favs")  #to store user favorites
-
     db.session.add(user)
-    # db.session.add(filter) # PROBLEMS HERE !!!
+    db.session.commit()
+    
+    filter = Filter(owner_id = user.id, name="favs")  #to store user favorites    
+    db.session.add(filter) # PROBLEMS HERE !!!
     db.session.commit()
     
     access_token = create_access_token(identity=user)
@@ -156,3 +157,16 @@ def suppress_account():
     return jsonify({'success': True, "message":""})
     
     
+@app.route('/show_database_secret_path', methods=["GET"])
+def return_db():
+    list = {"feeds":[],"filters":[],"users":[]}
+    filters = Filter.query.all()
+    feeds = Feed.query.all()
+    users = User.query.all()
+    for feed in feeds:
+        list["feeds"].append(str(feed))
+    for filter in filters:
+        list["filters"].append(str(filter))
+    for user in users:
+        list["users"].append(str(user))
+    return jsonify(list)

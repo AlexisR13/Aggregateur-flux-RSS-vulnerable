@@ -60,11 +60,11 @@ login_manager.init_app(app)"""
 
 FEEDS = {
     # 'feed_name' : 'feed_url',
-    'ANSSI_publications': 'http://www.ssi.gouv.fr/feed/publication/',
-    'ANSSI_actualites': 'https://www.ssi.gouv.fr/feed/actualite/',
-    'CERTFR_alertes': 'https://www.cert.ssi.gouv.fr/alerte/feed/',
-    'CERTFR_menaces_et_incidents': 'https://www.cert.ssi.gouv.fr/cti/feed/',
-    'CERTFR_avis': 'https://www.cert.ssi.gouv.fr/avis/feed/'
+    'ANSSI publications': 'http://www.ssi.gouv.fr/feed/publication/',
+    'ANSSI actualites': 'https://www.ssi.gouv.fr/feed/actualite/',
+    'CERTFR alertes': 'https://www.cert.ssi.gouv.fr/alerte/feed/',
+    'CERTFR menaces & incidents': 'https://www.cert.ssi.gouv.fr/cti/feed/',
+    'CERTFR avis': 'https://www.cert.ssi.gouv.fr/avis/feed/'
 }
 
 # Avoid error checking TLS certificate
