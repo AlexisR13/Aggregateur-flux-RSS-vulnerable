@@ -15,11 +15,14 @@ class User(UserMixin, db.Model):
     feeds = db.relationship('Feed', backref='user')
     filters = db.relationship('Filter', backref='user')
 
-    def __init__(self,login,passwd, email=""):
+    def __init__(self,login,password, email=""):
         
         self.login=login
-        self.password=bcrypt.hashpw(passwd.encode(), bcrypt.gensalt())
+        self.password=bcrypt.hashpw(password.encode(), bcrypt.gensalt())
         self.email = email
+        
+    def __str__(self):
+        return f"User(login='{self.login}', pw_hash='{self.password}', email='{self.email}', created_at='{self.created_at}')"
     
  
 class TokenBlocklist(db.Model):
@@ -55,6 +58,9 @@ class Feed(db.Model):
     default = db.Column(db.Boolean, nullable=False)  #url for feed, maybe not enough length
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     
+    def __str__(self):
+        return f"Feed(name='{self.name}', url='{self.url}', default='{self.default}', owner_id='{self.owner_id}')"
+    
     
 #many-to-many mapping
 filter_feed = db.Table('filter_feed',
@@ -70,3 +76,7 @@ class Filter(db.Model):
     name = db.Column(db.Text, nullable=False) 
     rule = db.Column(db.Text)  
     feeds = db.relationship('Feed', secondary=filter_feed, backref='filters')
+
+    def __str__(self):
+        return f"Filter(name='{self.name}', rule='{self.rule}', owner_id='{self.owner_id}')"
+    

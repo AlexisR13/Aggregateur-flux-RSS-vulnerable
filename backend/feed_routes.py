@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import feedparser
 import requests
 import json
+from html2text import html2text
 
 from config import *
 from models import *
@@ -98,7 +99,7 @@ def get_articles():
         url = feeds[feedName]["url"]
         feed = feedparser.parse(url)
         for entry in feed.entries:
-            dic = {"name": feedName, "published_parsed":entry.published_parsed,"link": entry.link, "summary":entry.summary, "title":entry.title, "published":entry.published}
+            dic = {"name": feedName, "published_parsed":entry.published_parsed,"link": entry.link, "summary":html2text(entry.summary).replace("\n"," "), "title":entry.title, "published":entry.published} #, "entry": entry}
             articles.append(dic)
         
     articles.sort(key= lambda entry:entry["published_parsed"], reverse=True)
