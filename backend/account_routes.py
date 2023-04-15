@@ -1,5 +1,4 @@
 from flask import request, jsonify
-from flask_login import current_user, login_user, logout_user, login_required
 from hmac import compare_digest
 import re
 from datetime import datetime
@@ -35,7 +34,7 @@ def signup():
     db.session.commit()
     
     filter = Filter(owner_id = user.id, name="favs")  #to store user favorites    
-    db.session.add(filter) # PROBLEMS HERE !!!
+    db.session.add(filter) 
     db.session.commit()
     
     access_token = create_access_token(identity=user)
@@ -156,7 +155,7 @@ def feedback(e=500):
           <body>
             <h1>Erreur 500</h1>
             <p>Vous pouvez aider l'Admin en lui précisant ce qui a conduit à cette erreur:</p></br></br>'''+form+\
-        '''<p>Voici les erreurs signalées précedemment par les autres utilisateurs: si la votre est déjà décrite, cela arrangerait l'administrateur si vous ne créez pas un doublon :)</p></br>'''
+        '''<p>Voici les erreurs signalées précedemment par les autres utilisateurs: si la votre est déjà décrite, veuillez ne pas créer un doublon :)</p></br>'''
             
     for comment in comments:
         
@@ -166,6 +165,13 @@ def feedback(e=500):
             <p class="description">'''+comment.description+'''</p>
         </div>'''
 
+        #template += '''<div class="comment" style="border: 1px solid black;padding: 10px;">
+        #    <p class="creation-date">'''+comment.created_at.strftime("%d/%m/%Y, %H:%M:%S")+'''</p>
+        #    <h2 class="summary">'''+re.sub(r'[^a-zA-Z0-9 .]', '', comment.summary)+'''</h2>
+        #    <p class="description">'''+re.sub(r'[^a-zA-Z0-9 .]', '', comment.description)+'''</p>
+        #</div>'''        
+        
+        
     template += '''</body></html>'''
 
     return render_template_string(template)
