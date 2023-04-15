@@ -9,7 +9,7 @@ function HomePage() {
 
   // Get flux RSS list from backend
   useEffect(() => {
-    axios.get('http://localhost:5000')
+    axios.get('/')
     .then((response) => {
       setFluxRSS(response.data);
       setIsFavorite(Object.keys(response.data).map(() => false));

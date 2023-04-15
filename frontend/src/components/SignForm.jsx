@@ -9,10 +9,12 @@ Props :
 - setPassword
 - submitButtonText
 - handleSubmit
-- error
 - errorMessage
 - alternateActionText
 - alternateActionUrl
+- displayEmail  (optional)
+- email         (optional)
+- setEmail      (optional)
 */
 export default function SignForm(props) {
     // Handling the username change
@@ -25,10 +27,15 @@ export default function SignForm(props) {
         props.setPassword(e.target.value);
     };
 
+    // Handling the password change
+    function handleEmail(e) {
+        props.setEmail(e.target.value);
+    };
+
     // Showing error message if error is true
     function ErrorMessage() {
         return (
-            <div className="bg-red-400 px-3 py-1 mb-4" style={{display: props.error ? '' : 'none'}}>
+            <div className="bg-red-400 px-3 py-1 mb-4" style={{display: props.errorMessage==='' ? 'none' : ''}}>
                 <h1>{props.errorMessage}</h1>
             </div>
         );
@@ -50,6 +57,14 @@ export default function SignForm(props) {
                 <div className='grid grid-cols-[40%_50%] gap-4 mt-4'>
                     <label>Nom d'utilisateur</label>
                     <input onChange={handleUsername} value={props.username} type="text" />
+
+                    {props.displayEmail ?
+                        <>
+                            <label>Adresse email</label>
+                            <input onChange={handleEmail} value={props.email} type="text" />
+                        </> :
+                        <></>
+                    }
                     
                     <label>Mot de passe</label>
                     <input onChange={handlePassword} value={props.password} type="password" />

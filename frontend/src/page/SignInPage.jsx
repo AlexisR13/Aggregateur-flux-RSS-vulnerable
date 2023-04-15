@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import SignForm from '../components/SignForm';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuthCookie } from '../redux/cookies';
+import axios from 'axios';
 
 export default function SignInPage() {
     const dispatch = useDispatch();
@@ -12,17 +13,28 @@ export default function SignInPage() {
     const [password, setPassword] = useState('');
 
     // States for checking the errors
-    const [error, setError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     // Handling the form submission
     function handleSubmit(e) {
         e.preventDefault();
-        if (username === 'admin' && password === 'admin') {
-            setError(false);
-            // TO DO - backend set cookie instead of frontend
-            dispatch(setAuthCookie('admin'));
+        if (username && password) {
+            axios.post('/login', {
+                username,
+                password
+            })
+                .then((response) => {
+                    const resp = response.data;
+                    if (resp.success) {
+                        console.log('VICTORY')
+                        // TO DO - backend set cookie instead of frontend
+                        dispatch(setAuthCookie('admin'));
+                    } else {
+                        setErrorMessage('Identifiants invalides !');
+                    }
+                })
         } else {
-            setError(true);
+            setErrorMessage('Veuillez remplir tous les champs.');
         }
     };
 
@@ -40,8 +52,7 @@ export default function SignInPage() {
             setPassword={setPassword}
             submitButtonText='Se connecter'
             handleSubmit={handleSubmit}
-            error={error}
-            errorMessage='Identifiants invalides !'
+            errorMessage={errorMessage}
             alternateActionText="S'inscrire"
             alternateActionUrl='/inscription'
         />

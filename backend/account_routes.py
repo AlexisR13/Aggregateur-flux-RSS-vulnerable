@@ -9,7 +9,7 @@ from models import *
 
 @app.route('/signup', methods=["POST"])
 def signup():
-    username = request.json.get('login')  #or login ..
+    username = request.json.get('username')
     password = request.json.get('password')   #should have password confirmation
     email = request.json.get('email')
 
@@ -30,16 +30,16 @@ def signup():
     filter = Filter(owner_id = user.id, name="favs")  #to store user favorites
 
     db.session.add(user)
-    db.session.add(filter)
+    # db.session.add(filter) # PROBLEMS HERE !!!
     db.session.commit()
-    
+
     login_user(user, remember=True)
     return jsonify({'success': True})
 
 
 @app.route('/login', methods=["POST"])
 def login():
-    username = request.json.get('login')
+    username = request.json.get('username')
     password = request.json.get('password').encode()
     user = User.query.filter_by(login=username).first()
     #login with email ?

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { useState } from 'react';
 import Cookies from 'js-cookie';
 import { Navigate } from 'react-router-dom';
@@ -6,19 +7,32 @@ import SignForm from '../components/SignForm';
 export default function SignUpPage() {
     // States for registration
     const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     // States for checking the errors
-    const [error, setError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     // Handling the form submission
     function handleSubmit(e) {
         e.preventDefault();
-        if (1==2) {
-            // Do stuff here
-            setError(false);
+        if (username && email && password) {
+            axios.post('/signup', {
+                username,
+                email,
+                password
+            })
+                .then((response) => {
+                    const resp = response.data;
+                    if (resp.success) {
+                        console.log('VICTORY')
+                        // set cookie ??
+                    } else {
+                        setErrorMessage(resp.message);
+                    }
+                })
         } else {
-            setError(true);
+            setErrorMessage('Veuillez renseigner tous les champs.');
         }
     };
 
@@ -36,10 +50,12 @@ export default function SignUpPage() {
             setPassword={setPassword}
             submitButtonText="S'inscrire"
             handleSubmit={handleSubmit}
-            error={error}
-            errorMessage='Une erreur est survenue. Veuillez réessayer ultérieurement.'
+            errorMessage={errorMessage}
             alternateActionText='Se connecter'
             alternateActionUrl='/connexion'
+            displayEmail
+            email={email}
+            setEmail={setEmail}
         />
     );
 }
