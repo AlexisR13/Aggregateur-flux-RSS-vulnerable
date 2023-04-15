@@ -126,7 +126,7 @@ def change_email():
 
 @app.errorhandler(500)
 @app.route('/error/admin_feedback_form_beta', methods=["GET","POST"]) 
-def feedback():
+def feedback(e=500):
     
     form = '''<form method="POST" action="/error/admin_feedback_form_beta">
                 <label for="summary">Titre:</label><br>
@@ -138,11 +138,12 @@ def feedback():
     
     if request.method == "POST":
         
-        summary = request.form["summary"]
-        description = request.form["description"]
-        feedback = Feedback(summary = summary, description = description)
-        db.session.add(feedback)
-        db.session.commit()
+        if "summary" in request.form and "description" in request.form:
+            summary = request.form["summary"]
+            description = request.form["description"]
+            feedback = Feedback(summary = summary, description = description)
+            db.session.add(feedback)
+            db.session.commit()
     
     comments = Feedback.query.all()
     

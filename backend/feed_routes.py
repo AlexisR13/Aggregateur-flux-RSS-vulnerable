@@ -1,5 +1,5 @@
-from flask import request, jsonify
-from flask_login import current_user, login_required
+from flask import request, jsonify, abort
+#from flask_login import current_user, login_required
 from bs4 import BeautifulSoup
 import feedparser
 import requests
@@ -118,20 +118,24 @@ def manage_feed(feed_id=-1):
     if request.method == "POST":
         user_id = current_user.id
         
-        nameAlreadyTaken = Feed.query.filter_by(name = request.json.get['name'], owner_id=user_id).first()  #SHOULD BE UNIQUE
+        nameAlreadyTaken = Feed.query.filter_by(name = request.json.get('name'), owner_id=user_id).first()  #SHOULD BE UNIQUE
         if nameAlreadyTaken:
             return jsonify({"success":False, "message":"Name already taken."})
         
-        urlAlreadyTaken = Feed.query.filter_by(url = request.json.get['url'], owner_id=user_id).first()  #SHOULD BE UNIQUE
+        urlAlreadyTaken = Feed.query.filter_by(url = request.json.get('url'), owner_id=user_id).first()  #SHOULD BE UNIQUE
         if urlAlreadyTaken:
             return jsonify({"success":False, "message":"URL already taken."})
             
-        feed = Feed(url = request.json.get('url'), name = request.json.get('name'), default = False, owner_id = user_id, publisher = feedparser(request.json.get('url')).feed.title)
+        try:
+            feed = Feed(url = request.json.get('url'), name = request.json.get('name'), default = False, owner_id = user_id, publisher = feedparser.parse(request.json.get('url'))["feed"]["title"])
 
-        db.session.add(feed)
-        db.session.commit()
-        
-        return jsonify({"success":True})
+            db.session.add(feed)
+            db.session.commit()
+        except:
+            abort(500)
+        else:
+            
+            return jsonify({"success":True})
             
     else:
         user_id = current_user.id
@@ -162,7 +166,7 @@ def rename_feed(feed_id):
     if feed is None:
         return jsonify({"success":False})
     
-    feed.name = request.json.get["name"]   
+    feed.name = request.json.get("name")  
     #peut-être nécessaire de faire une nettoyage ici si ce n'est pas fait sur le front
     #par exemple en faisant un strip de tous les caractères qui ne sont pas alphanumériques ou des espaces
     db.session.commit()
