@@ -21,12 +21,26 @@ class User(UserMixin, db.Model):
         self.password=bcrypt.hashpw(passwd.encode(), bcrypt.gensalt())
         self.email = email
     
-    
-    
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+ 
+class RevokedToken(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(120))
 
+    @classmethod
+    def is_jti_blacklisted(cls, jti):
+        query = cls.query.filter_by(jti=jti).first()
+        return bool(query)
+    
+    
+@jwt.user_identity_loader
+def user_identity_lookup(user):
+    return user.id
+
+
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    return User.query.filter_by(id=identity).one_or_none()
 
 
 class Feed(db.Model):

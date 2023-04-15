@@ -4,6 +4,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import ssl
 
+
+from flask_jwt_extended import create_access_token, get_raw_jwt, get_jwt_identity, jwt_required, JWTManager
+
 #Fonctionnalités bonus si on à le temps:
 
 # rendre l'authentification galère avec vérification d'email et captcha.
@@ -30,13 +33,20 @@ children = parent.children
 app = Flask(__name__)
 CORS(app)
 
-# SQL Database
 app.config['SECRET_KEY'] = 'a random string which I found on some w3ird internet website'
+#a supprimer ?
+
+# SQL Database
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///db.sqlite3'  #local database for now
 db = SQLAlchemy(app)
 
-login_manager = LoginManager()
-login_manager.init_app(app)
+# Setup the Flask-JWT-Extended extension
+app.config["JWT_SECRET_KEY"] = "super-secret, thou2 shall() not find/ it. " 
+jwt = JWTManager(app)
+
+
+"""login_manager = LoginManager()
+login_manager.init_app(app)"""
 
 
 FEEDS = {

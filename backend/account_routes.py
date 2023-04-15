@@ -7,6 +7,13 @@ from config import *
 from models import *
 
 
+# pour logout
+@jwt.token_in_blacklist_loader
+def check_if_token_in_blacklist(decrypted_token):
+    jti = decrypted_token['jti']
+    return RevokedToken.is_jti_blacklisted(jti)
+
+
 @app.route('/signup', methods=["POST"])
 def signup():
     username = request.json.get('login')  #or login ..
@@ -20,7 +27,7 @@ def signup():
         (re.search(r'[a-z]', password) is None, 'Password must include lower case letters.'),
         (re.search(r'\d', password) is None, 'Password must include digits.'),
         (re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email) is None, 'Invalid email.'),
-        (User.query.filter_by(login=username).first(), 'Username already taken')
+        (User.query.filter_by(login=username).one_or_none() is not None, 'Username already taken')
         ) if has_error]
     
     if len(errors)>0:
@@ -33,35 +40,45 @@ def signup():
     db.session.add(filter)
     db.session.commit()
     
-    login_user(user, remember=True)
-    return jsonify({'success': True})
+    access_token = create_access_token(identity=user)
+    return jsonify({'success':True, 'access_token':access_token})
+    
+    """login_user(user, remember=True)
+    return jsonify({'success': True})"""
 
 
 @app.route('/login', methods=["POST"])
 def login():
     username = request.json.get('login')
     password = request.json.get('password').encode()
-    user = User.query.filter_by(login=username).first()
+    user = User.query.filter_by(login=username).one_or_none()
     #login with email ?
     
     if user and compare_digest(bcrypt.hashpw(password, user.password), user.password):  #failed connexion
-        login_user(user, remember=True)
-        return jsonify({'success': True})
+        access_token = create_access_token(identity=user)
+        return jsonify({'success':True, 'access_token':access_token})
+    
+        """login_user(user, remember=True)
+        return jsonify({'success': True})"""
+        
     return jsonify({'success': False})
 
 
 @app.route('/logout', methods=["GET"])
-@login_required
+@jwt_required() #@login_required
 def logout():
-    logout_user()
+    jti = get_raw_jwt()['jti']
+    revoked_token = RevokedToken(jti=jti)
+    db.session.add(revoked_token)
+    db.session.commit()
+    #logout_user()
     return jsonify({'success': True})
 
 
 @app.route('/password', methods=["POST"])
-@login_required
+@jwt_required() #@login_required
 def change_password():    
-    user_id = int(current_user.get_id())
-    user = User.query.filter_by(id=user_id).first()
+    user = current_user
     
     old_pw = request.json.get('old_password')
     new_pw = request.json.get('new_password')
@@ -89,10 +106,9 @@ def change_password():
 
 
 @app.route('/email', methods=["POST"])
-@login_required
+@jwt_required() #@login_required
 def change_email():
-    user_id = int(current_user.get_id())
-    user = User.query.filter_by(id=user_id).first()
+    user = current_user
     
     new_email = request.json.get('new_email')
     password = request.json.get('password')
@@ -114,12 +130,11 @@ def change_email():
 
 
 @app.route('/profile', methods=["GET"])
-@login_required
+@jwt_required() #@login_required
 def profile():
-    user_id = int(current_user.get_id())
-    user = User.query.filter_by(id = user_id)
+    user = current_user
     if user:
-        return jsonify({"id": user_id, "login": user.login, "email": user.email, "created_at":user.created_at})
+        return jsonify({"id": user.id, "login": user.login, "email": user.email, "created_at":user.created_at})
     else:
         return jsonify({'success': False, "message": "Utilisateur non trouvé."})
     # retrieving a==the user filters
@@ -131,18 +146,17 @@ def profile():
     
  
 @app.route('/suppress_account', methods=["GET"])
-@login_required
+@jwt_required() #@login_required
 def suppress_account():
-    user_id = int(current_user.get_id())
-    user = User.query.filter_by(id = user_id).first()
+    user = current_user
     db.session.delete(user)
     
     # pas sûr qu'il soit nécessaire de supprimer séparemment les filtres et feeds, 
     # mais autant le faire dans le doute
-    filters = Filter.query.filter_by(owner_id = user_id).all()  
+    filters = Filter.query.filter_by(owner_id = user.id).all()  
     db.session.delete(filters)
     
-    feeds = Feed.query.filter_by(owner_id = user_id).all()
+    feeds = Feed.query.filter_by(owner_id = user.id).all()
     db.session.delete(feeds)
     
     db.session.commit()
