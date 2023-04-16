@@ -1,16 +1,9 @@
 from flask import Flask
-from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import ssl
 
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import get_jwt
-from flask_jwt_extended import get_jwt_identity
-from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
-from flask_jwt_extended import current_user
-
 from datetime import timedelta
 
 

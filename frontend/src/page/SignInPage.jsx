@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import SignForm from '../components/SignForm';
 import { useDispatch, useSelector } from 'react-redux';
-import { setAuthCookie } from '../redux/cookies';
+import { setToken } from '../redux/token';
 import axios from 'axios';
 
 export default function SignInPage() {
@@ -26,9 +26,7 @@ export default function SignInPage() {
                 .then((response) => {
                     const resp = response.data;
                     if (resp.success) {
-                        console.log('VICTORY')
-                        // TO DO - backend set cookie instead of frontend
-                        dispatch(setAuthCookie('admin'));
+                        dispatch(setToken(resp.access_token));
                     } else {
                         setErrorMessage('Identifiants invalides !');
                     }
@@ -39,7 +37,7 @@ export default function SignInPage() {
     };
 
     // If user is already connected, just redirect them
-    if (useSelector((state) => state.authCookie.value)) {
+    if (useSelector((state) => state.token.value)) {
         return <Navigate replace to='/'/>
     }
 

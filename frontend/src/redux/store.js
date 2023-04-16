@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit'
-import authCookieReducer from './cookies'
+import tokenReducer from './token'
 
 export default configureStore({
   reducer: {
-    authCookie: authCookieReducer
+    token: tokenReducer
   },
 })

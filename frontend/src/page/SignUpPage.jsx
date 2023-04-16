@@ -1,10 +1,13 @@
 import axios from 'axios';
 import { useState } from 'react';
-import Cookies from 'js-cookie';
 import { Navigate } from 'react-router-dom';
 import SignForm from '../components/SignForm';
+import { useDispatch, useSelector } from 'react-redux';
+import { setToken } from '../redux/token';
 
 export default function SignUpPage() {
+    const dispatch = useDispatch();
+
     // States for registration
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -25,8 +28,7 @@ export default function SignUpPage() {
                 .then((response) => {
                     const resp = response.data;
                     if (resp.success) {
-                        console.log('VICTORY')
-                        // set cookie ??
+                        dispatch(setToken(resp.access_token));
                     } else {
                         setErrorMessage(resp.message);
                     }
@@ -37,7 +39,7 @@ export default function SignUpPage() {
     };
 
     // If user is already connected, just redirect them
-    if (Cookies.get('username')) {
+    if (useSelector((state) => state.token.value)) {
         return <Navigate replace to='/'/>
     }
 

@@ -1,5 +1,5 @@
 from flask import request, jsonify, abort
-#from flask_login import current_user, login_required
+from flask_jwt_extended import jwt_required, current_user
 from bs4 import BeautifulSoup
 import feedparser
 import requests
@@ -18,7 +18,7 @@ def show_feeds():  #add possibility to use filters
     
     filter = request.args.get('filter', default = "*", type = str)
     
-    current_identity = get_jwt_identity()
+    current_identity = current_user
     
     if current_identity:
         user_id = current_user.id
@@ -84,7 +84,7 @@ def get_articles():
     count = request.args.get('count', default =50, type = int)
     feed = request.args.get('feed', default = -1, type = int)
     filter = request.args.get('filter', default = "*", type = str)
-    current_identity = get_jwt_identity()
+    current_identity = current_user
   
     if filter == "*" or not current_identity:
         
