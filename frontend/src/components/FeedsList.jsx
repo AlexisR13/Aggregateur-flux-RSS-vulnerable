@@ -4,13 +4,13 @@ import { Link, useNavigate } from "react-router-dom";
 
 export default function FluxList(props) {
     const [displayFavOnly, setDisplayFavOnly] = useState(false);
-    const authCookie = useSelector((state) => state.authCookie.value);
+    const token = useSelector((state) => state.token.value);
     const navigate = useNavigate();
 
     // Update which flux are marked as favorite (star is full)
     function updateIsFavorite(idx) {
         // Ask user to authenticated to see its favorites
-        if (!authCookie) {
+        if (!token) {
         navigate('/connexion');
         }
         else {

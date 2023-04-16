@@ -6,12 +6,12 @@ export default function AddFeedForm() {
     const [fluxName, setFluxName] = useState('');
     const [fluxURL, setFluxURL] = useState('');
     const [error, setError] = useState(false);
-    const authCookie = useSelector((state) => state.authCookie.value);
+    const token = useSelector((state) => state.token.value);
     const navigate = useNavigate();
 
     function handleSubmit(e) {
         e.preventDefault();
-        if (!authCookie) {
+        if (!token) {
             navigate('/connexion');
         } else {
             setError(true);

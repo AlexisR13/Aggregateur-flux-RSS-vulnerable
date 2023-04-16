@@ -16,5 +16,3 @@ services:
     image: flux-rss-client
     ports:
       - 8080:80
-    environment:
-      - NODE_ENV=prod

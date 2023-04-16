@@ -1,13 +1,11 @@
 from flask import request, jsonify
-from flask_login import current_user, login_user, logout_user, login_required
 from hmac import compare_digest
+from flask_jwt_extended import create_access_token, get_jwt, jwt_required, current_user
+from datetime import datetime, timezone
 import re
-from datetime import datetime
-from datetime import timezone
 
 from config import *
 from models import *
-
 
 @app.route('/signup', methods=["POST"])
 def signup():
@@ -59,7 +57,7 @@ def login():
 
 # Endpoint for revoking the current users access token. Saved the unique
 # identifier (jti) for the JWT into our database.
-@app.route("/logout", methods=["DELETE"])
+@app.route("/logout", methods=["GET"])
 @jwt_required()
 def modify_token():
     jti = get_jwt()["jti"]
@@ -70,16 +68,16 @@ def modify_token():
 
 
 @app.route('/password', methods=["POST"])
-@jwt_required() #@login_required
+@jwt_required() 
 def change_password():    
     user = current_user
     
-    old_pw = request.json.get('old_password')
-    new_pw = request.json.get('new_password')
-    repeated_pw = request.json.get('repeated_password')
+    old_pw = request.json.get('password').encode()
+    new_pw = request.json.get('newPassword')
+    # repeated_pw = request.json.get('repeated_password')
 
-    if new_pw != repeated_pw:
-        return jsonify({'success': False, "message": "Les deux nouveaux mots de passe ne correspondent pas."})
+    # if new_pw != repeated_pw:
+    #     return jsonify({'success': False, "message": "Les deux nouveaux mots de passe ne correspondent pas."})
     
     if user and compare_digest(bcrypt.hashpw(old_pw, user.password), user.password):  
         errors = [message for (has_error, message) in (
@@ -100,20 +98,16 @@ def change_password():
 
 
 @app.route('/email', methods=["POST"])
-@jwt_required() #@login_required
+@jwt_required() 
 def change_email():
     user = current_user
-    
-    new_email = request.json.get('new_email')
-    password = request.json.get('password')
+
+    new_email = request.json.get('newEmail')
+    password = request.json.get('password').encode()
 
     if user and compare_digest(bcrypt.hashpw(password, user.password), user.password):  
-        errors = [message for (has_error, message) in (
-            (re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', new_email) is None, 'Invalid email.')
-        ) if has_error]
-    
-        if len(errors)>0:
-            return jsonify({'success': False, "message":"\n".join(errors)})
+        if (re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', new_email) is None):
+            return jsonify({'success': False, "message":'Invalid email.'})
 
         user.email = new_email
         db.session.commit()
@@ -124,7 +118,7 @@ def change_email():
 
 
 @app.route('/profile', methods=["GET"])
-@jwt_required() #@login_required
+@jwt_required()
 def profile():
     user = current_user
     if user:
@@ -140,7 +134,7 @@ def profile():
     
  
 @app.route('/suppress_account', methods=["GET"])
-@jwt_required() #@login_required
+@jwt_required() 
 def suppress_account():
     user = current_user
     db.session.delete(user)

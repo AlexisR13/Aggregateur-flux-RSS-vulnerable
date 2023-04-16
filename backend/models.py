@@ -1,11 +1,10 @@
-from flask_login import UserMixin
 import bcrypt
 from datetime import datetime
 
 from config import *
 
 
-class User(UserMixin, db.Model):
+class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     login = db.Column(db.String(100), unique=True)  #login has to be unique

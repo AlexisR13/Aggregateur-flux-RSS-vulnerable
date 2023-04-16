@@ -2,6 +2,7 @@ import axios from 'axios';
 import {useEffect, useState} from 'react';
 import FeedsList from '../FeedsList';
 import Loader from '../Loader';
+import AddFeedForm from '../AddFeedForm';
 
 export default function FeedsListPannel() {
   const [fluxRSS, setFluxRSS] = useState({});
@@ -24,6 +25,7 @@ export default function FeedsListPannel() {
         // Flux list
         <FeedsList fluxRSS={fluxRSS} isFavorite={isFavorite} setIsFavorite={setIsFavorite}/>
         }
+        <AddFeedForm/>
     </div>
   );
 }
