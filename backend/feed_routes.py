@@ -62,7 +62,7 @@ def get_articles():
             
         else:  #trying to load a specific feed
             if current_identity:
-                feed = Feed.query.filter_by(id = feed_id, owner_id = current_identity.id).one_or_none()
+                #feed = Feed.query.filter_by(id = feed_id, owner_id = current_identity.id).one_or_none()
                 feed = current_user.feeds.filter_by(id = feed_id).one_or_none()
                 
                 if feed is None:                    
