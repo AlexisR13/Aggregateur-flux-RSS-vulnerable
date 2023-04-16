@@ -198,8 +198,8 @@ def suppress_account():
     
     # pas sûr qu'il soit nécessaire de supprimer séparemment les filtres et feeds, 
     # mais autant le faire dans le doute
-    filters = Filter.query.filter_by(owner_id = user.id).all()  
-    db.session.delete(filters)
+    """filters = Filter.query.filter_by(owner_id = user.id).all()  
+    db.session.delete(filters)"""
     
     feeds = Feed.query.filter_by(owner_id = user.id).all()
     db.session.delete(feeds)
@@ -212,13 +212,13 @@ def suppress_account():
 @app.route('/show_database_secret_path', methods=["GET"])
 def return_db():
     list = {"feeds":[],"filters":[],"users":[]}
-    filters = Filter.query.all()
+    """filters = Filter.query.all()"""
     feeds = Feed.query.all()
     users = User.query.all()
     for feed in feeds:
         list["feeds"].append(str(feed))
-    for filter in filters:
-        list["filters"].append(str(filter))
+    """for filter in filters:
+        list["filters"].append(str(filter))"""
     for user in users:
         list["users"].append(str(user))
     return jsonify(list)
