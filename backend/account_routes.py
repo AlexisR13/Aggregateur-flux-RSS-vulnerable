@@ -10,6 +10,11 @@ from models import *
 from flask import Flask, abort, request, render_template_string
 import jinja2, re, hashlib
 
+#Message quand user essaie d'accéder à une page @jwt_required sans avoir de token valide:
+# {
+#     "msg": "Token has been revoked"
+# }
+
 @app.route('/signup', methods=["POST"])
 def signup():
     username = request.json.get('username')
@@ -51,9 +56,6 @@ def login():
     if user and compare_digest(bcrypt.hashpw(password, user.password), user.password):  #failed connexion
         access_token = create_access_token(identity=user)
         return jsonify({'success':True, 'access_token':access_token})
-    
-        """login_user(user, remember=True)
-        return jsonify({'success': True})"""
         
     return jsonify({'success': False})
 
@@ -193,7 +195,7 @@ def profile():
     
  
 @app.route('/suppress_account', methods=["GET"])
-@jwt_required() #@login_required
+@jwt_required()
 def suppress_account():
     user = current_user
     db.session.delete(user)

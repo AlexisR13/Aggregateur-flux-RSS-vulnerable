@@ -14,6 +14,7 @@ class User(UserMixin, db.Model):
     
     feeds = db.relationship('Feed', backref='user')
     filters = db.relationship('Filter', backref='user')
+    savedarticles = db.relationship('Savedarticle', backref='user')
 
     def __init__(self,login,password, email=""):
         
@@ -59,6 +60,8 @@ class Feed(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     publisher = db.Column(db.Text)
     
+    savedarticles = db.relationship('Savedarticle', backref='feed')
+    
     def __str__(self):
         return f"Feed(name='{self.name}', url='{self.url}', default='{self.default}', owner_id='{self.owner_id}')"
     
@@ -71,7 +74,6 @@ filter_feed = db.Table('filter_feed',
 
     
 class Filter(db.Model):
-
     id = db.Column(db.Integer, primary_key = True)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     name = db.Column(db.Text, nullable=False) 
@@ -83,8 +85,37 @@ class Filter(db.Model):
     
 
 class Feedback(db.Model):
+    # Store comments of vulnerable page
     id = db.Column(db.Integer, primary_key = True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    summary = db.Column(db.String(100))  #login has to be unique
+    summary = db.Column(db.Text)  
     description = db.Column(db.Text)
     
+    
+"""savedarticle_user = db.Table('savedarticle_user',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('savedarticle_id', db.Integer, db.ForeignKey('savedarticle.id'))
+    )"""
+
+
+class Savedarticle(db.Model):
+    # mapping entre un feed et des articles.
+    
+    id = db.Column(db.Integer, primary_key = True)
+    saved_at = db.Column(db.DateTime, default=datetime.utcnow)
+    published_at = db.Column(db.Text)  
+    title = db.Column(db.Text) 
+    summary = db.Column(db.Text)
+    link = db.Column(db.Text) 
+    feed_id = db.Column(db.Integer, db.ForeignKey('feed.id'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    """id = db.Column(db.Integer, primary_key = True)
+    saved_at = db.Column(db.DateTime, default=datetime.utcnow)
+    published_at = db.Column(db.DateTime)   # attention à la convertion à faire ici
+    title = db.Column(db.Text) 
+    summary = db.Column(db.Text)
+    link = db.Column(db.Text) 
+    feed_id = db.Column(db.Integer, db.ForeignKey('feed.id'))
+    users = db.relationship('User', secondary=savedarticle_user, backref='savedarticles')
+    """
