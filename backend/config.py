@@ -29,17 +29,21 @@ FEEDS = {
     'CERTFR menaces & incidents': 'https://www.cert.ssi.gouv.fr/cti/feed/',
     'CERTFR avis': 'https://www.cert.ssi.gouv.fr/avis/feed/',
     'CISA Alerts': 'https://www.us-cert.gov/ncas/alerts',
-    'CISA Current Activity': 'https://www.us-cert.gov/ncas/current-activity',
-    'NCSC Report Feed': 'https://www.ncsc.gov.uk/api/1/services/v1/report-rss-feed',
-    'Latest threat advice': 'https://www.cyber.gov.au/rssfeed/2',
-    'Center for Internet Security': 'https://www.cisecurity.org/feed/advisories',
-    'NIST':'https://nvd.nist.gov/feeds/xml/cve/misc/nvd-rss-analyzed.xml',
-    'Vmware': 'https://www.vmware.com/security/advisories.xml',
-    'US-cert': 'https://us-cert.cisa.gov/ncas/alerts.xml',
-    'Us-cert weekly': 'https://us-cert.cisa.gov/ncas/bulletins.xml',
-    'Naked Security': 'https://www.nakedsecurity.sophos.com/feed '
+    
+    'DarkNet': 'http://feeds.feedburner.com/darknethackers',
+
+    'InfoSecurity Mag': 'http://www.infosecurity-magazine.com/rss/news/',
+
+    'Krebs on Security': 'http://krebsonsecurity.com/feed/',
+
+    'Naked Security': 'http://nakedsecurity.sophos.com/feed/',
+
+    'ThreatPost': 'http://threatpost.com/feed/'
 }
 
 # Avoid error checking TLS certificate
 if hasattr(ssl, '_create_unverified_context'):
     ssl._create_default_https_context = ssl._create_unverified_context
+    
+    """
+"""
