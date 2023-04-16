@@ -18,30 +18,18 @@ from datetime import timedelta
 
 # Il faut créer une table d'association pour les favoris, les articles sauvegardés et aussi les articles abonnés
 
-"""
-parent = Parent(name='John')
-child1 = Child(name='Alice')
-child2 = Child(name='Bob')
-parent.children = [child1, child2]
-db.session.add(parent)
-db.session.commit()
-
-parent = Parent.query.get(1)
-children = parent.children
-"""
-
 app = Flask(__name__)
 CORS(app)
 
-app.config['SECRET_KEY'] = 'a random string which I found on some w3ird internet website'
-#a supprimer ?
+app.config['SECRET_KEY'] = 'admin123@aV3rySecurePassworth(haha)!'
+# L'admin n'a pas compris que ce SECRET_KEY n'était pas la même chose que ses credentials, mais qu'il est bête !
 
 # SQL Database
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///db.sqlite3'  #local database for now
 db = SQLAlchemy(app)
 
 # Setup the Flask-JWT-Extended extension
-app.config["JWT_SECRET_KEY"] = "super-secret, thou2 shall() not find/ it. " 
+app.config["JWT_SECRET_KEY"] = "super-secret #9fj82_@ax07_uc], thou shall not find it." 
 ACCESS_EXPIRES = timedelta(hours=2)
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
 jwt = JWTManager(app)
