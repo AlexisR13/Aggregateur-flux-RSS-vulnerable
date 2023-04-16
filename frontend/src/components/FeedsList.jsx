@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -14,9 +15,19 @@ export default function FeedsList(props) {
             navigate('/connexion');
         }
         else {
+            // Fill star in front
             const newArray = [...props.isFavorite];
             newArray[id] = !newArray[id];
             props.setIsFavorite(newArray);
+
+            // Update database in backend
+            axios.get('/edit_favorite/' + id,
+                { headers: { Authorization: `Bearer ${token}` }}
+                )
+                .then((response) => {
+                    const resp = response.data;
+                    console.log(resp)
+                })
         }
     }
 
@@ -24,8 +35,8 @@ export default function FeedsList(props) {
         <div>
             <button className='mb-2 px-1 text-sm border' onClick={() => setDisplayFavOnly(!displayFavOnly)}>
                 {displayFavOnly ?
-                'Afficher tous les flux' :
-                'Afficher seulement les flux favoris'
+                'Afficher tous les feeds' :
+                'Afficher seulement les feeds favoris'
                 }
             </button>
             <ul className='list-inside'>

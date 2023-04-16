@@ -4,6 +4,4 @@ Flask-Cors==3.0.10
 flask_jwt_extended==4.4.4
 Flask-SQLAlchemy==3.0.3
 bcrypt==4.0.1
-bs4==0.0.1
-requests==2.25.1
 html2text==2020.1.16
