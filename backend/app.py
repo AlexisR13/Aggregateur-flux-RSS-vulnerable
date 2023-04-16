@@ -21,7 +21,7 @@ if __name__ == "__main__":
                 publisher = feedparser.parse(url)["feed"]["title"]
             except:
                 publisher = ""
-            default_feeds.append(Feed(name=key, url=url, default=True, publisher = ""))
+            default_feeds.append(Feed(name=key, url=url, default=True, publisher = publisher))
             
         db.session.add_all(default_feeds)
         
