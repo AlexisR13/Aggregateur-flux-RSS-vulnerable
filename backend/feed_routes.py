@@ -2,9 +2,9 @@ from flask import request, jsonify, abort
 from flask_jwt_extended import jwt_required, current_user
 from bs4 import BeautifulSoup
 import feedparser
-import requests
 import json
 from html2text import html2text
+from flask import abort
 
 from config import *
 from models import *
@@ -144,7 +144,6 @@ def manage_feed(feed_id=-1):
         except:
             abort(500)
         else:
-            
             return jsonify({"success":True})
             
     else:
@@ -207,6 +206,7 @@ def edit_favorite(feed_id):
     return jsonify({"success":True})
 
 
+# pour sauvegarder un article, ou supprimer un article des articles sauvegardés
 @app.route('/manage_article', methods = ["POST"])
 @app.route('/manage_article/<int:article_id>', methods = ["DELETE"])
 @jwt_required()

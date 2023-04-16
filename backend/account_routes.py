@@ -4,8 +4,6 @@ from flask_jwt_extended import create_access_token, get_jwt, jwt_required, curre
 from datetime import datetime, timezone
 import re
 
-from flask import abort
-import jinja2, hashlib
 from flask import request, render_template_string
 
 from config import *
