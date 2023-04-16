@@ -5,25 +5,25 @@ import Loader from '../Loader';
 import AddFeedForm from '../AddFeedForm';
 
 export default function FeedsListPannel() {
-  const [fluxRSS, setFluxRSS] = useState({});
+  const [feeds, setFeeds] = useState({});
   const [isFavorite, setIsFavorite] = useState([]);
 
   // Get flux RSS list from backend
   useEffect(() => {
     axios.get('/')
     .then((response) => {
-      setFluxRSS(response.data);
+      setFeeds(response.data);
       setIsFavorite(Object.keys(response.data).map(() => false));
     })
   }, [])
 
   return (
-    <div>
-        { Object.keys(fluxRSS).length===0 ?
+    <div className='ml-12'>
+        { Object.keys(feeds).length===0 ?
         // Loading...
         <Loader/> :
         // Flux list
-        <FeedsList fluxRSS={fluxRSS} isFavorite={isFavorite} setIsFavorite={setIsFavorite}/>
+        <FeedsList feeds={feeds} isFavorite={isFavorite} setIsFavorite={setIsFavorite}/>
         }
         <AddFeedForm/>
     </div>

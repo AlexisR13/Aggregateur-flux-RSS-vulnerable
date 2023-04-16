@@ -12,7 +12,7 @@ function LeftButton(props) {
 
 export default function LeftPannel(props) {
   return (
-    <div className='h-screen mx-10 pr-6 border-r border-r-slate-900'>
+    <div className='h-screen ml-10 pr-6 border-r border-r-slate-900'>
         <ul className="w-max">
             <LeftButton 
             text='Home' 

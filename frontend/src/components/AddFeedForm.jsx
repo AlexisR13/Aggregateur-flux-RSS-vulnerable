@@ -1,11 +1,13 @@
+import axios from "axios";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 export default function AddFeedForm() {
-    const [fluxName, setFluxName] = useState('');
-    const [fluxURL, setFluxURL] = useState('');
-    const [error, setError] = useState(false);
+    const [name, setName] = useState('');
+    const [url, setUrl] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const token = useSelector((state) => state.token.value);
     const navigate = useNavigate();
 
@@ -14,15 +16,33 @@ export default function AddFeedForm() {
         if (!token) {
             navigate('/connexion');
         } else {
-            setError(true);
+            if (name && url) {
+                axios.post('/manage_feed', 
+                        { name, url},
+                        { headers: { Authorization: `Bearer ${token}` }}
+                    )
+                    .then((response) => {
+                        const resp = response.data;
+                        if (resp.success) {
+                            setErrorMessage('');
+                            setSuccessMessage('Flux ajouté !');
+                        } else {
+                            setSuccessMessage('');
+                            setErrorMessage(resp.message);
+                        }
+                    })
+            } else {
+                setErrorMessage('Veuillez renseigner tous les champs.');
+            }
         }
     }
 
-    // Showing error message if error is true
-    function ErrorMessage() {
+    // Showing error or success message
+    function Message() {
         return (
-            <div className="bg-red-400 w-max px-3 py-1 mb-4" style={{display: error ? '' : 'none'}}>
-                <p>Ajout impossible</p>
+            <div className={"w-max px-3 py-1 mb-4 " + (errorMessage?'bg-red-400':'bg-green-400')} 
+                style={{display: (errorMessage || successMessage) ? '' : 'none'}}>
+                <p>{errorMessage || successMessage}</p>
             </div>
         );
     };
@@ -30,17 +50,17 @@ export default function AddFeedForm() {
     return (
         <div className='mt-14 border p-4'>
         <h2 className='text-2xl mb-4'>Ajouter un flux supplémentaire :</h2>
-        <ErrorMessage/>
+        <Message/>
         <form>
             <label>Nom du flux :</label>
             <input type='text'
-                value={fluxName}
-                onChange={(e) => setFluxName(e.target.value)}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className='mx-6 p-1 border'/>
             <label>URL du flux :</label>
             <input type='text' 
-                value={fluxURL} 
-                onChange={(e) => setFluxURL(e.target.value)}
+                value={url} 
+                onChange={(e) => setUrl(e.target.value)}
                 placeholder='https://example.com/feed' 
                 className='ml-6 p-1 border'/>
             <button type='submit' onClick={handleSubmit} className='ml-4 p-1 bg-gray-400  rounded'>Envoyer</button>

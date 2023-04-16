@@ -2,21 +2,21 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 
-export default function FluxList(props) {
+export default function FeedsList(props) {
     const [displayFavOnly, setDisplayFavOnly] = useState(false);
     const token = useSelector((state) => state.token.value);
     const navigate = useNavigate();
 
     // Update which flux are marked as favorite (star is full)
-    function updateIsFavorite(idx) {
+    function updateIsFavorite(id) {
         // Ask user to authenticated to see its favorites
         if (!token) {
-        navigate('/connexion');
+            navigate('/connexion');
         }
         else {
-        const newArray = [...props.isFavorite];
-        newArray[idx] = !newArray[idx];
-        props.setIsFavorite(newArray);
+            const newArray = [...props.isFavorite];
+            newArray[id] = !newArray[id];
+            props.setIsFavorite(newArray);
         }
     }
 
@@ -29,14 +29,14 @@ export default function FluxList(props) {
                 }
             </button>
             <ul className='list-inside'>
-                {Object.keys(props.fluxRSS).map((name, idx) => {
-                    if (!displayFavOnly || props.isFavorite[idx]) {
+                {Object.entries(props.feeds).map(([name, feed]) => {
+                    if (!displayFavOnly || props.isFavorite[feed.id]) {
                         return(
-                        <li key={name}>
-                            <button onClick={() => updateIsFavorite(idx)}>
-                                {props.isFavorite[idx] ? '★' : '☆'}
+                        <li key={feed.id}>
+                            <button onClick={() => updateIsFavorite(feed.id)}>
+                                {props.isFavorite[feed.id] ? '★' : '☆'}
                             </button>
-                            <Link to={'feed/'+name} className='ml-4 text-blue-700'>
+                            <Link to={'feed/'+feed.id} className='ml-4 text-blue-700'>
                                 {name}
                             </Link>
                         </li>

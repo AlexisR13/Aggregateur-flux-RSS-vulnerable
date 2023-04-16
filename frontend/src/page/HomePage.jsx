@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import LeftPannel from '../components/LeftPannel';
-import FeedsListPannel from '../components/RightPannels/FeedsListPannel';
-import ArticlesListPannel from '../components/RightPannels/ArticlesListPannel';
+import LeftPannel from '../components/Pannels/LeftPannel';
+import FeedsListPannel from '../components/Pannels/FeedsListPannel';
+import ArticlesListPannel from '../components/Pannels/ArticlesListPannel';
 
 function HomePage() {
   const [pannelSelected, setPannelSelected] = useState('home')

@@ -81,7 +81,7 @@ export default function ProfilePage() {
             })
     }
 
-    function ErrorMessage() {
+    function Message() {
         return (
             <div className={"w-max px-3 py-1 mb-4 " + (errorMessage?'bg-red-400':'bg-green-400')} 
                 style={{display: (errorMessage || successMessage) ? '' : 'none'}}>
@@ -94,7 +94,6 @@ export default function ProfilePage() {
     if (!token) {
         return <Navigate replace to='/connexion'/>
     }
-    console.log(user)
 
     return (
         <div>
@@ -107,7 +106,7 @@ export default function ProfilePage() {
                         <p><b>Date de création :</b> {user.created_at}</p>
                     </div>
                     <div>
-                        <ErrorMessage/>
+                        <Message/>
                         <Form title="Changer l'email"
                             fieldname='Nouvel email'
                             placeholder={user.email}
