@@ -1,8 +1,6 @@
-from flask import request, jsonify, abort
+from flask import request, jsonify, redirect
 from flask_jwt_extended import jwt_required, current_user
-from bs4 import BeautifulSoup
 import feedparser
-import requests
 import json
 from html2text import html2text
 
@@ -142,7 +140,7 @@ def manage_feed(feed_id=-1):
             db.session.add(feed)
             db.session.commit()
         except:
-            abort(500)
+            return redirect('/error/admin_feedback_form_beta'), 500
         else:
             
             return jsonify({"success":True})

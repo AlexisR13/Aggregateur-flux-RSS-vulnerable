@@ -4,8 +4,6 @@ from flask_jwt_extended import create_access_token, get_jwt, jwt_required, curre
 from datetime import datetime, timezone
 import re
 
-from flask import abort
-import jinja2, hashlib
 from flask import request, render_template_string
 
 from config import *
@@ -126,7 +124,7 @@ def change_email():
 @app.route('/error/admin_feedback_form_beta', methods=["GET","POST"]) 
 def feedback(e=500):
     
-    form = '''<form method="POST" action="/error/admin_feedback_form_beta">
+    form = '''<form method="POST" action="">
                 <label for="summary">Titre:</label><br>
                 <input type="text" id="summary" name="summary" required><br>
                 <label for="description">Description:</label><br>
@@ -173,7 +171,7 @@ def feedback(e=500):
         
     template += '''</body></html>'''
 
-    return render_template_string(template)
+    return render_template_string(template), 500
 
 @app.route('/profile', methods=["GET"])
 @jwt_required()

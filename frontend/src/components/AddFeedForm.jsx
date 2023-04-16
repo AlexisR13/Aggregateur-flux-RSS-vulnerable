@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { BACKEND_URL } from "../constants"
 
 export default function AddFeedForm() {
     const [name, setName] = useState('');
@@ -19,7 +20,7 @@ export default function AddFeedForm() {
             if (name && url) {
                 axios.post('/manage_feed', 
                         { name, url},
-                        { headers: { Authorization: `Bearer ${token}` }}
+                        { headers: { Authorization: `Bearer ${token}` } }
                     )
                     .then((response) => {
                         const resp = response.data;
@@ -30,6 +31,13 @@ export default function AddFeedForm() {
                             setSuccessMessage('');
                             setErrorMessage(resp.message);
                         }
+                    })
+                    .catch((error) => {
+                        const string = error.response.data
+                        const startIndex = string.indexOf('<a href="') + '<a href="'.length;
+                        const endIndex = string.indexOf('">', startIndex);
+                        const hrefValue = string.slice(startIndex, endIndex);
+                        window.location.replace(BACKEND_URL + hrefValue)
                     })
             } else {
                 setErrorMessage('Veuillez renseigner tous les champs.');
@@ -49,15 +57,15 @@ export default function AddFeedForm() {
 
     return (
         <div className='mt-14 border p-4'>
-        <h2 className='text-2xl mb-4'>Ajouter un flux supplémentaire :</h2>
+        <h2 className='text-2xl mb-4'>Ajouter un feed supplémentaire :</h2>
         <Message/>
         <form>
-            <label>Nom du flux :</label>
+            <label>Nom du feed :</label>
             <input type='text'
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className='mx-6 p-1 border'/>
-            <label>URL du flux :</label>
+            <label>URL du feed :</label>
             <input type='text' 
                 value={url} 
                 onChange={(e) => setUrl(e.target.value)}
