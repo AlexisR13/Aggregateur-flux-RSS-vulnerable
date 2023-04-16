@@ -21,6 +21,12 @@ ACCESS_EXPIRES = timedelta(hours=2)
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
 jwt = JWTManager(app)
 
+# Pour vérification par email, à venir
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'myVeryConfidentialEmail@gmail.com'
+app.config['MAIL_PASSWORD'] = 'myVeryGoodPassword'
+
 FEEDS = {
     # 'feed_name' : 'feed_url',
     'ANSSI publications': 'http://www.ssi.gouv.fr/feed/publication/',
