@@ -31,4 +31,4 @@ if __name__ == "__main__":
         db.session.commit()
 
     # Listen on docker inside networks interface (or localhost if use without docker)
-    app.run(port=5000, host=os.environ.get('LISTENING_INTERFACE'), debug=True)
+    app.run(port=5000, host=os.environ.get('LISTENING_INTERFACE'))
