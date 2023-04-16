@@ -1,8 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 import Loader from '../components/Loader';
+import { removeToken } from "../redux/token";
 
 function Form(props) {    
     return(
@@ -30,6 +31,7 @@ function Form(props) {
 
 export default function ProfilePage() {
     const token = useSelector((state) => state.token.value);
+    const dispatch = useDispatch();
     const [user, setUser] = useState({});
     const [password, setPassword] = useState('');
     const [newEmail, setNewEmail] = useState('');
@@ -81,6 +83,21 @@ export default function ProfilePage() {
             })
     }
 
+    function deleteAccount() {
+        axios.get('/suppress_account', {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        .then((response) => {
+            const resp = response.data;
+            if (resp.success) {
+                dispatch(removeToken());
+            } else {
+                setSuccessMessage('');
+                setErrorMessage("Une erreur s'est produite.");
+            }
+        })
+    }
+
     function Message() {
         return (
             <div className={"w-max px-3 py-1 mb-4 " + (errorMessage?'bg-red-400':'bg-green-400')} 
@@ -125,6 +142,10 @@ export default function ProfilePage() {
                             setPassword={setPassword}
                         />
                     </div>
+                    <button className="mt-5 ml-10 border border-red-600 bg-red-200 p-1 px-4 rounded"
+                        onClick={deleteAccount}>
+                        Supprimer le compte
+                    </button>
                 </div>
             }
         </div>

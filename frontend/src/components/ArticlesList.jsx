@@ -1,11 +1,10 @@
 import { Link } from 'react-router-dom';
 import Loader from './Loader';
 
-function ArticleCard({feedName, articleId, article}) {
-  // article = { name: <feedname>, title: <text>, published: <date>, summary: <text> }
-  // TO DO : feedname ???
+function ArticleCard({article}) {
+  // article = { name: <feedname>, title: <text>, published: <date>, summary: <text>, link: <url> }
   return (
-    <Link to={'/article/?feed_name='+feedName+'&id='+articleId} className='mx-12 mb-4 p-3 border flex'>
+    <Link to={article.link} className='mx-12 mb-4 p-3 border flex'>
       <div className='w-1/4'>
         <h3>{article.name}</h3>
       </div>
