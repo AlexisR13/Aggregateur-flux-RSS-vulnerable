@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, current_user
 import feedparser
 import json
 from html2text import html2text
+import re
 
 from config import *
 from models import *
@@ -110,6 +111,11 @@ def manage_feed(feed_id=0):
     
     if request.method == "POST":
         user_id = current_user.id
+        
+        url_pattern = "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
+        urlValid = re.match(url_pattern, request.json.get('url')) 
+        if not urlValid:
+            return jsonify({"success":False, "message":"Invalid URL."})
         
         nameAlreadyTaken = Feed.query.filter_by(name = request.json.get('name'), owner_id=user_id).first()  #SHOULD BE UNIQUE
         if nameAlreadyTaken:
