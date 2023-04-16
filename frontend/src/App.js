@@ -5,6 +5,7 @@ import HomePage from './page/HomePage';
 import Header from './components/Header';
 import ProfilePage from './page/ProfilePage';
 import ArticlesFromOneFeedPage from './page/ArticlesFromOneFeedPage';
+import Footer from './components/Footer';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path='/feed/:feedId' element={<ArticlesFromOneFeedPage/>}/>
         </Routes>
       </div>
+      <Footer/>
     </div>
   );
 }
