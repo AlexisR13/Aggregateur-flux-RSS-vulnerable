@@ -49,7 +49,7 @@ def show_feeds():
 @jwt_required(optional=True)
 def get_articles():    
     page = request.args.get('page', default = 1, type = int)
-    count = request.args.get('count', default =50, type = int)
+    count = request.args.get('count', default =100, type = int)
     feed_id = request.args.get('feed', default = 0, type = int)
     filter = request.args.get('filter', default = "*", type = str)
     current_identity = current_user
