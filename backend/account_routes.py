@@ -9,11 +9,6 @@ from flask import request, render_template_string
 from config import *
 from models import *
 
-#Message quand user essaie d'accéder à une page @jwt_required sans avoir de token valide:
-# {
-#     "msg": "Token has been revoked"
-# }
-
 @app.route('/signup', methods=["POST"])
 def signup():
     username = request.json.get('username')
@@ -36,11 +31,6 @@ def signup():
     user = User(login = username,password = password, email = email)
     db.session.add(user)
     db.session.commit()
-    """
-    favorites = User.query.with_entities(User.favorites).filter_by(id = user_id).all()  #Filter.query.with_entities(Filter.feeds).filter_by(owner_id = user_id, name="favs").all()
-    filter = Filter(owner_id = user.id, name="favs")  #to store user favorites    
-    db.session.add(filter) 
-    db.session.commit()"""
     
     access_token = create_access_token(identity=user)
     return jsonify({'success':True, 'access_token':access_token})
@@ -79,11 +69,7 @@ def change_password():
     
     old_pw = request.json.get('password').encode()
     new_pw = request.json.get('newPassword')
-    # repeated_pw = request.json.get('repeated_password')
-
-    # if new_pw != repeated_pw:
-    #     return jsonify({'success': False, "message": "Les deux nouveaux mots de passe ne correspondent pas."})
-    
+   
     if user and compare_digest(bcrypt.hashpw(old_pw, user.password), user.password):  
         errors = [message for (has_error, message) in (
             (len(new_pw)<12, 'Password must be at least 12 characters long.'),
@@ -182,13 +168,7 @@ def profile():
         return jsonify({"id": user.id, "login": user.login, "email": user.email, "created_at":user.created_at})
     else:
         return jsonify({'success': False, "message": "Utilisateur non trouvé."})
-    # retrieving a==the user filters
-    
-    favorites = Filter.query.with_entities(Filter.feeds).filter_by(owner_id = user_id, name="favs").all()
-    #filters = User.query.filter_by(id = user_id).with_entities(User.filters)  #.all ?
-    #favorites = filters.with_entities(Filter.feeds).filter_by(name = "favs").all()
-    feeds = Feed.query.filter_by(owner_id = user_id).all()
-    
+   
  
 @app.route('/suppress_account', methods=["GET"])
 @jwt_required() 
@@ -196,29 +176,10 @@ def suppress_account():
     user = current_user
     db.session.delete(user)
     
-    # pas sûr qu'il soit nécessaire de supprimer séparemment les filtres et feeds, 
+    # pas sûr qu'il soit nécessaire de supprimer séparemment les feeds, 
     # mais autant le faire dans le doute
-    """filters = Filter.query.filter_by(owner_id = user.id).all()  
-    db.session.delete(filters)"""
-    
     feeds = Feed.query.filter_by(owner_id = user.id).all()
     db.session.delete(feeds)
     
     db.session.commit()
     return jsonify({'success': True, "message":""})
-    
-    
-### NE PAS OUBLIER DE SUPPRIMER CA AVANT DE DOCKERISER ###
-@app.route('/show_database_secret_path', methods=["GET"])
-def return_db():
-    list = {"feeds":[],"filters":[],"users":[]}
-    """filters = Filter.query.all()"""
-    feeds = Feed.query.all()
-    users = User.query.all()
-    for feed in feeds:
-        list["feeds"].append(str(feed))
-    """for filter in filters:
-        list["filters"].append(str(filter))"""
-    for user in users:
-        list["users"].append(str(user))
-    return jsonify(list)

@@ -3,34 +3,25 @@ from flask_jwt_extended import jwt_required, current_user
 import feedparser
 import json
 from html2text import html2text
-from flask import abort
 
 from config import *
 from models import *
 
-#Ajout à cette route la possibilité de lister que les feeds favoris via le paramètre optionnel filter
+# permet de lister tous les feeds disponibles et s'ils sont favoris
 @app.route('/', methods=["GET"])
 @jwt_required(optional=True)
-def show_feeds():  #add possibility to use filters
-    #OUTPUT: {<FEED_NAME>:{"url":<FEED_URL>, "id":<FEED_ID>, "isFavorite:<Boolean>"}...}
+def show_feeds(): 
     dic = {}
-    
-    #filter = request.args.get('filter', default = "*", type = str)
     
     current_identity = current_user
     
     if current_identity:
-        user_id = current_user.id
         
-        favorites = current_user.favorites  #Filter.query.with_entities(Filter.feeds).filter_by(owner_id = user_id, name="favs").all()
-        #filters = User.query.filter_by(id = user_id).with_entities(User.filters)  #.all ?
-        #favorites = filters.with_entities(Filter.feeds).filter_by(name = "favs").all()
+        favorites = current_user.favorites  
         
-        #if filter != "favs":
-        feeds = Feed.query.filter_by(owner_id = user_id).all()
-        
+        feeds = current_user.feeds
+                
         defaults = Feed.query.filter_by(default=True).all()
-        #default feeds don't have any owner_id
         
         for feed in defaults:
             dic[feed.name] = {"url":feed.url, "id":feed.id, "name":feed.name, "publisher":feed.publisher, "isFavorite":False}  #pas sûr du True, peut-être mettre 0 ou 1
@@ -41,11 +32,6 @@ def show_feeds():  #add possibility to use filters
         for feed in favorites:
             dic[feed.name] = {"url":feed.url, "id":feed.id, "name":feed.name, "publisher":feed.publisher, "isFavorite":True}  #pas sûr du True, peut-être mettre 0 ou 1
     
-        """else:
-            
-            for feed in favorites:
-                dic[feed.name] = {"url":feed.url, "id":feed.id, "name":feed.name, "publisher":feed.publisher, "isFavorite":True}  #pas sûr du True, peut-être mettre 0 ou 1  
-    """
     else:
         feeds = Feed.query.filter_by(default=True).all()
             
@@ -53,29 +39,15 @@ def show_feeds():  #add possibility to use filters
             dic[feed.name] = {"url":feed.url, "id":feed.id, "name":feed.name, "publisher":feed.publisher, "isFavorite":False}
         
     return jsonify(dic)
-#retourner aussi tous les IDs de filtres ?
-
-#aussi à implémenter: la création d'un filtre favoris pour chaque user
-# profile public ou non
-# avec amis pour recommendations
-
-# search users pour ajouter les utilisateurs
-
-#utilisateurs peuven partager ou non leur flux, partager ou non leur feeds subscribed
-
-#les recommendations ? JSP 
 
 
 # Par défaut, cette route renvoie les 50 articles les plus récents
 # Il est possible ensuite de changer de page et de nombre d'articles à afficher
 # ATTENTION: page indexé à 1
+# possible d'appliquer des filtres. Actuellement, que les favoris
 @app.route('/articles', methods=["GET"])
 @jwt_required(optional=True)
-def get_articles():
-    # prend en input l'output de "/": OUTPUT: {<FEED_NAME>:{"url":<FEED_URL>, "isFavorite:<Boolean>"}...}
-    # le isFavorite n'est ici pas utilisé
-    # retourne: l'objet feedparse qui stocke tous les articles, jsonifié
-    
+def get_articles():    
     page = request.args.get('page', default = 1, type = int)
     count = request.args.get('count', default =50, type = int)
     feed_id = request.args.get('feed', default = 0, type = int)
@@ -90,13 +62,13 @@ def get_articles():
             
         else:  #trying to load a specific feed
             if current_identity:
-                custom_feed = Feed.query.filter_by(id = feed_id, owner_id=current_identity.id)
+                feed = Feed.query.filter_by(id = feed_id, owner_id=current_identity.id).one_or_none()  #custom_feed = current_user.feeds.filter_by(id = feed_id)
+                if feed is None:                    
+                    feed = Feed.query.filter_by(id = feed_id, default=True).one_or_none()
+                    
             else:
-                custom_feed = None
-                
-            default_feed = Feed.query.filter_by(id = feed_id, default=True)
-            feed = default_feed.union(custom_feed).first()
-            
+                feed = Feed.query.filter_by(id = feed_id, default=True).one_or_none()
+                            
             rep = False
             if current_identity and feed in current_identity.favorites:
                 rep = True
