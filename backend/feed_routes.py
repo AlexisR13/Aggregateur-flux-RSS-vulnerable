@@ -1,6 +1,5 @@
 from flask import request, jsonify, abort
 from flask_jwt_extended import jwt_required, current_user
-from bs4 import BeautifulSoup
 import feedparser
 import json
 from html2text import html2text
@@ -16,45 +15,42 @@ def show_feeds():  #add possibility to use filters
     #OUTPUT: {<FEED_NAME>:{"url":<FEED_URL>, "id":<FEED_ID>, "isFavorite:<Boolean>"}...}
     dic = {}
     
-    filter = request.args.get('filter', default = "*", type = str)
+    #filter = request.args.get('filter', default = "*", type = str)
     
     current_identity = current_user
     
     if current_identity:
         user_id = current_user.id
-        # retrieving a==the user filters
         
-        
-        favorites = Filter.query.with_entities(Filter.feeds).filter_by(owner_id = user_id, name="favs").all()
+        favorites = current_user.favorites  #Filter.query.with_entities(Filter.feeds).filter_by(owner_id = user_id, name="favs").all()
         #filters = User.query.filter_by(id = user_id).with_entities(User.filters)  #.all ?
         #favorites = filters.with_entities(Filter.feeds).filter_by(name = "favs").all()
         
-        if filter == "*":
-            feeds = Feed.query.filter_by(owner_id = user_id).all()
-            
-            defaults = Feed.query.filter_by(default=True).all()
-            #default feeds don't have any owner_id
-            
-            for feed in favorites:
-                dic[feed.name] = {"url":feed.url, "id":feed.id, "name":feed.name, "publisher":feed.publisher, "isFavorite":True}  #pas sûr du True, peut-être mettre 0 ou 1
-            
-            for feed in feeds.except_(favorites):
-                dic[feed.name] = {"url":feed.url, "id":feed.id, "name":feed.name, "publisher":feed.publisher, "isFavorite":False}  #pas sûr du True, peut-être mettre 0 ou 1
-                
-            for feed in defaults.except_(favorites).except_(feeds):
-                dic[feed.name] = {"url":feed.url, "id":feed.id, "name":feed.name, "publisher":feed.publisher, "isFavorite":False}  #pas sûr du True, peut-être mettre 0 ou 1
+        #if filter != "favs":
+        feeds = Feed.query.filter_by(owner_id = user_id).all()
         
-        elif filter == "favs":
+        defaults = Feed.query.filter_by(default=True).all()
+        #default feeds don't have any owner_id
+        
+        for feed in defaults:
+            dic[feed.name] = {"url":feed.url, "id":feed.id, "name":feed.name, "publisher":feed.publisher, "isFavorite":False}  #pas sûr du True, peut-être mettre 0 ou 1
+    
+        for feed in feeds:
+            dic[feed.name] = {"url":feed.url, "id":feed.id, "name":feed.name, "publisher":feed.publisher, "isFavorite":False}  #pas sûr du True, peut-être mettre 0 ou 1
+        
+        for feed in favorites:
+            dic[feed.name] = {"url":feed.url, "id":feed.id, "name":feed.name, "publisher":feed.publisher, "isFavorite":True}  #pas sûr du True, peut-être mettre 0 ou 1
+    
+        """else:
             
             for feed in favorites:
-                dic[feed.name] = {"url":feed.url, "id":feed.id, "name":feed.name, "publisher":feed.publisher, "isFavorite":True}  #pas sûr du True, peut-être mettre 0 ou 1
-            
-            
+                dic[feed.name] = {"url":feed.url, "id":feed.id, "name":feed.name, "publisher":feed.publisher, "isFavorite":True}  #pas sûr du True, peut-être mettre 0 ou 1  
+    """
     else:
         feeds = Feed.query.filter_by(default=True).all()
-        
-    for feed in feeds:            
-        dic[feed.name] = {"url":feed.url, "id":feed.id, "name":feed.name, "publisher":feed.publisher, "isFavorite":False}
+            
+        for feed in feeds:            
+            dic[feed.name] = {"url":feed.url, "id":feed.id, "name":feed.name, "publisher":feed.publisher, "isFavorite":False}
         
     return jsonify(dic)
 #retourner aussi tous les IDs de filtres ?
@@ -82,27 +78,40 @@ def get_articles():
     
     page = request.args.get('page', default = 1, type = int)
     count = request.args.get('count', default =50, type = int)
-    feed = request.args.get('feed', default = -1, type = int)
+    feed_id = request.args.get('feed', default = 0, type = int)
     filter = request.args.get('filter', default = "*", type = str)
     current_identity = current_user
+    feeds = {}
   
-    if filter == "*" or not current_identity:
+    if filter != "favs" or not current_identity:
         
-        if feed == -1:
+        if feed_id == 0:  #loading all the feeds
             feeds = json.loads(show_feeds().get_data())
-        else:
-            # on s'en fiche s'il n'appartient pas à la personne qui fait la requête, car URL publique.
-            feed = Feed.query.filter_by(id = feed).one_or_none()
-            feeds = {feed.name:{"url":feed.url, "id":feed.id, "isFavorite":False}}
+            
+        else:  #trying to load a specific feed
+            if current_identity:
+                custom_feed = Feed.query.filter_by(id = feed_id, owner_id=current_identity.id)
+            else:
+                custom_feed = None
+                
+            default_feed = Feed.query.filter_by(id = feed_id, default=True)
+            feed = default_feed.union(custom_feed).first()
+            
+            rep = False
+            if current_identity and feed in current_identity.favorites:
+                rep = True
+            
+            if feed is None:
+                return jsonify({"success": False, "message": "Feed not found"})
+            
+            feeds = {feed.name:{"url":feed.url, "id":feed_id, "isFavorite":rep}}
             
     elif current_identity and filter == "favs":
         
-        user_id = current_user.id
-        filtered_feeds = Filter.query.with_entities(Filter.feeds).filter_by(owner_id = user_id, name=filter).all()
+        favorites = current_user.favorites
         
-        for feed in filtered_feeds:  #ON SUPPOSE QUE FILTRE = FAVS
+        for feed in favorites:  #ON SUPPOSE QUE FILTRE = FAVS
             feeds[feed.name] = {"url":feed.url, "id":feed.id, "isFavorite":True}  #pas sûr du True, peut-être mettre 0 ou 1
-        
         
     articles = []
     for feedName in feeds:
@@ -154,7 +163,7 @@ def manage_feed(feed_id=-1):
             return jsonify({"success":False})
         
         #il faut récupérer le filtre "favs" associé à cet user, et vérifier si le feed y est ou non
-        favorites = Filter.query.with_entities(Filter.feeds).filter_by(owner_id = user_id, name="favs").all()
+        favorites = User.query.with_entities(User.favorites).filter_by(id = user_id).all()
 
         if favorites.query.filter_by(id = feed_id).exists():
             favorites.feeds.remove(feed)
@@ -195,15 +204,17 @@ def edit_favorite(feed_id):
             return jsonify({"success":False})
     
     #il faut récupérer le filtre "favs" associé à cet user, et vérifier si le feed y est ou non
-    favorites = Filter.query.with_entities(Filter.feeds).filter_by(owner_id = user_id, name="favs").all()
+    favorites = current_user.favorites
     
-    if favorites.query.filter_by(id = feed_id).exists():
-        favorites.feeds.remove(feed)
+    if feed in favorites:
+        favorites.remove(feed)
+        message = "Feed supprimé des favoris"
     else:
-        favorites.feeds.append(feed)
-
+        favorites.append(feed)
+        message = "Feed ajouté aux favoris"
+        
     db.session.commit()
-    return jsonify({"success":True})
+    return jsonify({"success":True, "message":message})
 
 
 # pour sauvegarder un article, ou supprimer un article des articles sauvegardés

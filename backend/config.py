@@ -21,7 +21,7 @@ from datetime import timedelta
 app = Flask(__name__)
 CORS(app)
 
-app.config['SECRET_KEY'] = 'admin123@aV3rySecurePassworth(haha)!'
+app.config['SECRET_KEY'] = 'Hehi#h838Fc8d_iaU%@cDc'
 # L'admin n'a pas compris que ce SECRET_KEY n'était pas la même chose que ses credentials, mais qu'il est bête !
 
 # SQL Database

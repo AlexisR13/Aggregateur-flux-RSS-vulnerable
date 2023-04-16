@@ -36,10 +36,11 @@ def signup():
     user = User(login = username,password = password, email = email)
     db.session.add(user)
     db.session.commit()
-    
+    """
+    favorites = User.query.with_entities(User.favorites).filter_by(id = user_id).all()  #Filter.query.with_entities(Filter.feeds).filter_by(owner_id = user_id, name="favs").all()
     filter = Filter(owner_id = user.id, name="favs")  #to store user favorites    
     db.session.add(filter) 
-    db.session.commit()
+    db.session.commit()"""
     
     access_token = create_access_token(identity=user)
     return jsonify({'success':True, 'access_token':access_token})

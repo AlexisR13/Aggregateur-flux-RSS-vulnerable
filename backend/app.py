@@ -21,7 +21,7 @@ if __name__ == "__main__":
             
         db.session.add_all(default_feeds)
         
-        admin = User("admin123","aV3rySecurePassworth(haha)!", "193892fjzfizj00@gmail.com")
+        admin = User("admin","aV3rySecurePassworth(haha)!", "193892fjzfizj00@gmail.com")
         db.session.add(admin)
         
         db.session.commit()
