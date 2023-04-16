@@ -27,7 +27,17 @@ FEEDS = {
     'ANSSI actualites': 'https://www.ssi.gouv.fr/feed/actualite/',
     'CERTFR alertes': 'https://www.cert.ssi.gouv.fr/alerte/feed/',
     'CERTFR menaces & incidents': 'https://www.cert.ssi.gouv.fr/cti/feed/',
-    'CERTFR avis': 'https://www.cert.ssi.gouv.fr/avis/feed/'
+    'CERTFR avis': 'https://www.cert.ssi.gouv.fr/avis/feed/',
+    'CISA Alerts': 'https://www.us-cert.gov/ncas/alerts',
+    'CISA Current Activity': 'https://www.us-cert.gov/ncas/current-activity',
+    'NCSC Report Feed': 'https://www.ncsc.gov.uk/api/1/services/v1/report-rss-feed',
+    'Latest threat advice': 'https://www.cyber.gov.au/rssfeed/2',
+    'Center for Internet Security': 'https://www.cisecurity.org/feed/advisories',
+    'NIST':'https://nvd.nist.gov/feeds/xml/cve/misc/nvd-rss-analyzed.xml',
+    'Vmware': 'https://www.vmware.com/security/advisories.xml',
+    'US-cert': 'https://us-cert.cisa.gov/ncas/alerts.xml',
+    'Us-cert weekly': 'https://us-cert.cisa.gov/ncas/bulletins.xml',
+    'Naked Security': 'https://www.nakedsecurity.sophos.com/feed '
 }
 
 # Avoid error checking TLS certificate
