@@ -17,7 +17,11 @@ if __name__ == "__main__":
         
         for key in FEEDS:
             url=FEEDS[key]
-            default_feeds.append(Feed(name=key, url=url, default=True, publisher = feedparser.parse(url)["feed"]["title"]))
+            try:
+                publisher = feedparser.parse(url)["feed"]["title"]
+            except:
+                publisher = ""
+            default_feeds.append(Feed(name=key, url=url, default=True, publisher = ""))
             
         db.session.add_all(default_feeds)
         
