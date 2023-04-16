@@ -14,8 +14,7 @@ def signup():
     username = request.json.get('username')
     password = request.json.get('password')   #should have password confirmation
     email = request.json.get('email')
-
-    #https://stackoverflow.com/questions/25211924/check-every-condition-in-python-if-else-even-if-one-evaluates-to-true
+    
     errors = [message for (has_error, message) in (
         (len(password)<12, 'Password must be at least 12 characters long.'),
         (re.search(r'[A-Z]', password) is None, 'Password must include upper case letters.'),
@@ -41,7 +40,6 @@ def login():
     username = request.json.get('username')
     password = request.json.get('password').encode()
     user = User.query.filter_by(login=username).one_or_none()
-    #login with email ?
     
     if user and compare_digest(bcrypt.hashpw(password, user.password), user.password):  #failed connexion
         access_token = create_access_token(identity=user)

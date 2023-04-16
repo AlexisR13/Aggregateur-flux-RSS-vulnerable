@@ -29,21 +29,13 @@ FEEDS = {
     'CERTFR menaces & incidents': 'https://www.cert.ssi.gouv.fr/cti/feed/',
     'CERTFR avis': 'https://www.cert.ssi.gouv.fr/avis/feed/',
     'CISA Alerts': 'https://www.us-cert.gov/ncas/alerts',
-    
     'DarkNet': 'http://feeds.feedburner.com/darknethackers',
-
     'InfoSecurity Mag': 'http://www.infosecurity-magazine.com/rss/news/',
-
     'Krebs on Security': 'http://krebsonsecurity.com/feed/',
-
     'Naked Security': 'http://nakedsecurity.sophos.com/feed/',
-
     'ThreatPost': 'http://threatpost.com/feed/'
 }
 
 # Avoid error checking TLS certificate
 if hasattr(ssl, '_create_unverified_context'):
     ssl._create_default_https_context = ssl._create_unverified_context
-    
-    """
-"""

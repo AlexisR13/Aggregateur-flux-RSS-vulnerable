@@ -44,7 +44,7 @@ class Feed(db.Model):
     def __str__(self):
         return f"Feed(name='{self.name}', url='{self.url}', default='{self.default}', owner_id='{self.owner_id}')"
     
-    
+# Filters not implemented
 """#many-to-many mapping
 filter_feed = db.Table('filter_feed',
     db.Column('filter_id', db.Integer, db.ForeignKey('filter.id')),
@@ -69,12 +69,6 @@ class Feedback(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     summary = db.Column(db.Text)  
     description = db.Column(db.Text)
-    
-    
-"""savedarticle_user = db.Table('savedarticle_user',
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('savedarticle_id', db.Integer, db.ForeignKey('savedarticle.id'))
-    )"""
 
 
 class Savedarticle(db.Model):
@@ -88,18 +82,6 @@ class Savedarticle(db.Model):
     link = db.Column(db.Text) 
     feed_id = db.Column(db.Integer, db.ForeignKey('feed.id'))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    
-    """id = db.Column(db.Integer, primary_key = True)
-    saved_at = db.Column(db.DateTime, default=datetime.utcnow)
-    published_at = db.Column(db.DateTime)   # attention à la convertion à faire ici
-    title = db.Column(db.Text) 
-    summary = db.Column(db.Text)
-    link = db.Column(db.Text) 
-    feed_id = db.Column(db.Integer, db.ForeignKey('feed.id'))
-    users = db.relationship('User', secondary=savedarticle_user, backref='savedarticles')
-    """
-    
-    
     
 
 class TokenBlocklist(db.Model):
