@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function FavoriteArticlesListPannel() {
   const [articles, setArticles] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
   const token = useSelector((state) => state.token.value);
   const navigate = useNavigate();
 
@@ -20,15 +21,21 @@ export default function FavoriteArticlesListPannel() {
     )
       .then((response) => {
         setArticles(response.data);
+        setIsLoading(false);
     })
     }
   }, [navigate, token])
 
   return (
     <div>
-      { Object.keys(articles).length===0 ?
-        <Loader/> :
-        <ArticlesList articles={articles}/>
+      { isLoading ?
+         <Loader/> :
+        <>
+        { Object.keys(articles).length===0 ?
+          <p className='ml-12 mt-10'>Ajoutez des feeds aux favoris pour les retrouver ici !</p> :
+          <ArticlesList articles={articles}/>
+        }
+        </>
       }
     </div>
   );
