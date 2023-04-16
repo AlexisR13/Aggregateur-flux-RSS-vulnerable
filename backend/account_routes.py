@@ -174,13 +174,8 @@ def profile():
 @jwt_required() 
 def suppress_account():
     user = current_user
+    modify_token()  #blacklist token and logout
+    
     db.session.delete(user)
-    
-    # pas sûr qu'il soit nécessaire de supprimer séparemment les feeds, 
-    # mais autant le faire dans le doute
-    feeds = Feed.query.filter_by(owner_id = user.id).all()
-    db.session.delete(feeds)
-    
     db.session.commit()
-    modify_token()
-    return jsonify({'success': True, "message":""})
+    return jsonify({'success': True, "message":"Compte supprimé"})
