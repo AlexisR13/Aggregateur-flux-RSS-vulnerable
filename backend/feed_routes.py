@@ -82,8 +82,8 @@ def get_articles():
         
         favorites = current_user.favorites
         
-        for feed in favorites:  #ON SUPPOSE QUE FILTRE = FAVS
-            feeds[feed.name] = {"url":feed.url, "id":feed.id, "isFavorite":True}  #pas sûr du True, peut-être mettre 0 ou 1
+        for feed in favorites:
+            feeds[feed.name] = {"url":feed.url, "id":feed.id, "isFavorite":True} 
         
     articles = []
     for feedName in feeds:
@@ -101,7 +101,7 @@ def get_articles():
 @app.route('/manage_feed', methods = ["POST"])
 @app.route('/manage_feed/<int:feed_id>', methods = ["DELETE"])
 @jwt_required()
-def manage_feed(feed_id=-1):
+def manage_feed(feed_id=0):
     # On suppose que pour le delete, on a en entrée l'ID du filtre
     # Mais on pourrait facilement adapter la fonction si on a juste le nom du feed (en utilisant alors le user_id)
     # On impose que chaque nom de feed est unique (pour un user donné)
@@ -129,10 +129,10 @@ def manage_feed(feed_id=-1):
             
     else:
         user_id = current_user.id
-        feed = Feed.query.filter_by(id = feed_id, owner_id=user_id).first()  #SHOULD BE UNIQUE
+        feed = Feed.query.filter_by(id = feed_id, owner_id=user_id).first()
         
         if feed is None:
-            return jsonify({"success":False})
+            return jsonify({"success":False, "message":"Feed to delete not found."})
         
         #il faut récupérer le filtre "favs" associé à cet user, et vérifier si le feed y est ou non
         favorites = User.query.with_entities(User.favorites).filter_by(id = user_id).all()

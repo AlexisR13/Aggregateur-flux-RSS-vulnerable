@@ -182,4 +182,5 @@ def suppress_account():
     db.session.delete(feeds)
     
     db.session.commit()
+    modify_token()
     return jsonify({'success': True, "message":""})
